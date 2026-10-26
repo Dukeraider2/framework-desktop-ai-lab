@@ -2,7 +2,7 @@
 
 A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop. The project covers local AI, GPU compute, remote access, and a separate streaming/recording workflow.
 
-> **Status:** Planning. No proposed installation or hardware test is considered complete until its result is captured on the target system.
+> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. Remote Android access through Tailscale HTTPS is still unresolved (HTTP 403); see [the dated status log](docs/STATUS_2026-10-25.md).
 
 ## Goals
 - Establish a clean, maintainable Ubuntu Desktop baseline.
@@ -56,14 +56,16 @@ Use an imaging tool selected after checking external SSD health, capacity, files
 - `docs/GPU_VALIDATION.md` — Vulkan, ROCm/HIP and PyTorch tests
 - `docs/STREAMING.md` — capture card and OBS
 - `docs/OPSEC.md` — public repository hygiene
+- `docs/STATUS_2026-10-25.md` — sanitized observed results and current troubleshooting checkpoint
 - `docs/TEST_LOG_TEMPLATE.md` — repeatable test records
 - `docs/SOURCES.md` — official references
 
 ## Current known context
-- The Framework Desktop currently runs Ubuntu; a clean reinstall is planned.
-- Target platform: AMD Ryzen AI Max+ 395.
-- Tailscale is already used on the current install; the goal is to recover reliable access after reinstall, ideally without leaving unnecessary stale entries.
-- The capture device is described as a UGREEN HDMI-in/HDMI-out unit with USB-C, intended for 1080p60. Exact model is not yet verified.
-- External SSDs are available but have not yet been checked for health/capacity.
+- Target platform: AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu 26.04 (Resolute).
+- ROCm/HIP smoke test passed for `gfx1151`; Vulkan device enumeration identifies the Radeon GPU through RADV.
+- Ollama successfully loaded `qwen3:8b` with GPU placement reported at 100% during the observed test.
+- An encrypted secondary-SSD backup was created and its checksums verified; full restore recovery has not been tested.
+- Tailscale Serve is configured for private HTTPS access, but an Android Ollama client currently receives HTTP 403. The responding layer is not yet identified.
+- The UGREEN capture device workflow remains unvalidated; exact model and sustained 1080p60 behavior are not verified.
 
-These are planning notes, not claims that compatibility or tests have been verified.
+See the dated status log for test boundaries. Only observed results are marked as passes.
