@@ -32,3 +32,21 @@ ollama/
 Thumbs.db
 .idea/
 .vscode/
+# Backup images and archives
+*.img
+*.iso
+*.raw
+*.qcow2
+*.vmdk
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.zip
+*.bak
+
+# Private keys and exported credential stores
+*.key
+*.p12
+*.pfx
+*.kdbx
