@@ -57,6 +57,7 @@ Use an imaging tool selected after checking external SSD health, capacity, files
 - `docs/STREAMING.md` — capture card and OBS
 - `docs/OPSEC.md` — public repository hygiene
 - `docs/STATUS_2026-10-25.md` — sanitized observed results and current troubleshooting checkpoint
+- `docs/INSTALLATION_RECORD.md` — installation sequence, exact retained commands, and observed verification results
 - `docs/TEST_LOG_TEMPLATE.md` — repeatable test records
 - `docs/SOURCES.md` — official references
 
