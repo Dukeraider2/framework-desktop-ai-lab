@@ -35,3 +35,16 @@ Label commands containing placeholders clearly. Do not use values that could acc
 - [ ] Never commit a secret expecting to remove it later.
 
 Keep raw logs locally if needed; publish only the minimum sanitized lines required to support a conclusion.
+## Automated local preflight
+
+Run a review against the proposed diff before publishing. Treat scanner output as sensitive and keep it local; false positives still require manual review.
+
+Example checks from the repository root:
+
+```bash
+git status --short
+git diff --check
+git diff -- . ':!*.svg'
+```
+
+For an initial credential-pattern sweep of changed text files, use a trusted local secret scanner (for example, Gitleaks) and review findings manually. Do not paste raw scanner output or full logs into public issues. A clean working-tree scan does not prove old Git history is clean; if a real secret was committed, revoke/rotate it first and separately assess history remediation.
