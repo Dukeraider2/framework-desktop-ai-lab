@@ -14,25 +14,25 @@
   <img alt="Project status: active build log" src="https://img.shields.io/badge/status-active%20build%20log-2E8B57?style=flat-square">
 </p>
 
-A reproducible, OPSEC-conscious record of bringing up a Framework Desktop with local inference, GPU compute, remote access, backups, and capture hardware. The notes separate observed results from plans and unverified work.
+A reproducibility-focused, OPSEC-conscious record of bringing up a Framework Desktop with local inference, GPU compute, remote access, backups, and capture hardware. The workstation build is specific to the hardware above; the Ollama + Tailscale proxy documentation is being organized as a reusable deployment pattern for compatible Linux hosts.
 
 > [!IMPORTANT]
 > **Proxy beta: community testing is open for v0.1.0-beta.1.** Local proxy discovery and non-streaming inference passed. Tailscale HTTPS `/api/tags` returned HTTP 200 after cutover, and an Android OpenAI-compatible client completed a basic prompt and response. A clean completed streaming test, startup after reboot without login, and backup restoration remain unverified. The guide has not yet been independently reproduced on a clean machine.
 >
-> Start with the [step-by-step beta guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md). See also the [beta notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md), [proxy operations](docs/LLM_PROXY_OPERATIONS.md), and [latest status log](docs/STATUS_2026-10-26.md).
+> Start with the [generic Linux proxy beta guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md). See the [platform profiles and compatibility boundaries](docs/PROXY_PLATFORM_PROFILES.md), [beta notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md), [proxy operations](docs/LLM_PROXY_OPERATIONS.md), and [latest status log](docs/STATUS_2026-10-26.md).
 
 ## At a glance
 
 | Area | Current record |
 | --- | --- |
-| **Platform** | Framework Desktop · Ryzen AI Max+ 395 · Ubuntu 26.04 |
+| **Workstation platform** | Framework Desktop · Ryzen AI Max+ 395 · Ubuntu 26.04.1 LTS |
 | **GPU compute** | ROCm/HIP smoke test passed for `gfx1151`; Vulkan enumerates the Radeon GPU |
 | **Local inference** | Ollama loaded `qwen3:8b`; GPU placement reported at 100% in the observed test |
 | **Remote access** | Tailscale HTTPS proxy endpoint and a basic Android client request verified |
 | **Backups** | Encrypted backup checksums verified; restore not tested |
 | **Capture** | UGREEN capture workflow and sustained 1080p60 behavior remain unverified |
 
-Only observed results are marked as passes. Read the dated status records for test scope and boundaries.
+The proxy results above were observed on the Framework Desktop test host. They are not proof that the procedure has been tested on other Linux distributions or hardware. Only observed results are marked as passes.
 
 ## Follow the build
 
@@ -69,7 +69,8 @@ Restore points are planned at validated milestones; their placement in the diagr
 
 | Guide | What it covers |
 | --- | --- |
-| [Ollama + Tailscale proxy guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md) | Prerequisites, setup, local checks, Tailscale cutover, Android configuration, troubleshooting, and rollback |
+| [Generic Linux Ollama + Tailscale proxy guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md) | Prerequisites, setup, local checks, Tailscale cutover, Android configuration, troubleshooting, and rollback |
+| [Platform profiles](docs/PROXY_PLATFORM_PROFILES.md) | What is generic, what was tested on AI Max, and what remains unverified elsewhere |
 | [Proxy operations](docs/LLM_PROXY_OPERATIONS.md) | Operations and rollback reference |
 | [v0.1.0-beta.1 notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md) | Beta scope and limitations |
 | [NGINX example](examples/nginx/ollama.conf) | Example reverse-proxy configuration |
@@ -93,6 +94,7 @@ This is a **planning track** for a proposed six-node Proxmox monitoring and mult
 ## Working principles
 
 - Change one thing at a time and record observed results.
+- Change GPU drivers and inference backends only after checking the target platform's official compatibility information.
 - Review destructive disk operations and positively identify target disks.
 - Never publish credentials, device keys, private IP maps, MAC addresses, serial numbers, or unredacted logs.
 - Keep model weights and caches outside OS restore images.
