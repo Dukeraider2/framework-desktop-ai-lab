@@ -6,17 +6,17 @@
 
 This phase covers only a small reverse proxy in front of Ollama. MCP and Hermes integrations are out of scope.
 
-The proxy's immediate purpose is to rewrite the upstream HTTP `Host` header. During diagnosis, Ollama returned `403 Forbidden` for requests forwarded with the tailnet HTTPS hostname, but returned `200 OK` when the upstream request used `Host: localhost:11434`. The permanent proxy fix has not yet been deployed or retested from Android.
+The proxy rewrites the upstream HTTP `Host` header. During diagnosis, Ollama returned `403 Forbidden` for requests forwarded with the tailnet HTTPS hostname, but returned `200 OK` when the upstream request used `Host: localhost:11434`. The persistent proxy is now the Tailscale Serve backend, and same-host HTTPS `/api/tags` was verified to return `200 OK` without a manual Host override. Android client access and reboot startup still need verification.
 
 ## Agreed design
 
 - **Runtime:** Podman container.
 - **Privilege model:** Prefer rootless Podman, managed by a user-level systemd/Quadlet service. Confirm on the target Ubuntu system before installation.
 - **Boot startup:** User lingering is enabled and the service is wired under the user `default.target`; verify it after a real reboot before claiming boot startup is confirmed.
-- **Desktop controls:** Start, Stop, and Status shortcuts for this service only. The files/scripts exist and scripts pass shell syntax checks; GNOME double-click behavior remains to be confirmed.
+- **Desktop controls:** Start, Stop, and Status shortcuts for this service only. The files exist and scripts pass shell syntax checks. Status displayed the service correctly; Stop and Start were both verified by double-clicking their desktop icons, and the service state changed as expected.
 - **Proxy configuration:** A standalone editable NGINX configuration file, mounted read-only into the container.
 - **Request paths:** No application-code allowlist. NGINX configuration controls routing; the initial design is transparent forwarding for Ollama API paths, with the upstream `Host` set to `localhost:11434`. Do not introduce path restrictions unless intentionally configured and tested.
-- **Network exposure:** No public-facing listener. Keep Tailscale Serve tailnet-only and do not enable Funnel. Keep Ollama's existing loopback binding unchanged.
+- **Network exposure:** NGINX is published only on host loopback `127.0.0.1:11435`. Tailscale Serve forwards the existing tailnet-only HTTPS route to that port. Do not enable Funnel. Keep Ollama's existing loopback binding unchanged.
 - **Lifecycle separation:** Starting or stopping the proxy must not start or stop Ollama.
 - **Recovery:** Preserve the previous Serve configuration and proxy config backup before cutover or edits.
 
