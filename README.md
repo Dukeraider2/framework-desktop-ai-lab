@@ -38,9 +38,9 @@ Only observed results are marked as passes. Read the dated status records for te
 
 The project verifies each layer independently, then records what worked and what still needs testing.
 
-![Flowchart of the documented Framework Desktop build phases, validation gates, restore points, and pending capture test](docs/assets/build-workflow.svg)
+![Flowchart of the documented Framework Desktop build phases, validation gates, restore points, and pending capture test](docs/assets/build-workflow-v2.svg)
 
-[Open the workflow diagram at full size](docs/assets/build-workflow.svg)
+[Open the workflow diagram at full size](docs/assets/build-workflow-v2.svg)
 
 Restore points are planned at validated milestones; their placement in the diagram does not imply that a checkpoint has been created. See the [full build plan](docs/PLAN.md) and [latest status log](docs/STATUS_2026-10-26.md).
 
