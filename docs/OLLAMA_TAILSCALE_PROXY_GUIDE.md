@@ -25,10 +25,13 @@ You need:
 
 - Ubuntu with a normal, non-root user account.
 - Ollama installed and working locally.
-- Tailscale connected to your tailnet, with HTTPS/Serve available.
-- Podman with rootless mode and Quadlet support.
+- Tailscale connected to your tailnet.
+- HTTPS certificates enabled for your tailnet in the Tailscale admin console, and Serve available.
+- Podman with rootless mode, the `pasta` networking helper, and Quadlet support.
 - A model already downloaded in Ollama.
 - Terminal access to the host and an authorized device on the same tailnet.
+
+If Serve reports that HTTPS is unavailable, stop and enable HTTPS certificates in the Tailscale admin console before proceeding. Do not work around that prerequisite by exposing the service publicly.
 
 Check the existing components:
 
@@ -58,7 +61,19 @@ mkdir -p "$HOME/.config/containers/systemd"
 chmod 750 "$HOME/.config/llm-proxy"
 ```
 
-If either destination already contains a configuration you need, back it up before editing. The next steps replace the contents of the named files.
+If either destination already contains a configuration you need, back it up before editing. The following commands make timestamped copies of the two files if they already exist:
+
+```bash
+STAMP="$(date +%Y%m%d-%H%M%S)"
+for FILE in "$HOME/.config/llm-proxy/default.conf" "$HOME/.config/containers/systemd/llm-proxy.container"; do
+  if [ -e "$FILE" ]; then
+    cp -a -- "$FILE" "$FILE.bak.$STAMP"
+    printf 'Backup created: %s\n' "$FILE.bak.$STAMP"
+  fi
+done
+```
+
+Review the backup paths before continuing. The next steps replace the contents of the named files. If you already run a service called `llm-proxy`, do not overwrite its files until you understand what depends on it.
 
 ## Step 2: Create the NGINX configuration
 
