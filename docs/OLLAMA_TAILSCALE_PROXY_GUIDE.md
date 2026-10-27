@@ -1,10 +1,12 @@
-# Ollama + Tailscale + Rootless NGINX Proxy: Beta Setup Guide
+# Generic Linux: Ollama + Tailscale + Rootless NGINX Proxy (Beta)
 
-This guide turns the tested beta configuration into a step-by-step procedure. It is written for a reader who knows basic terminal use but is not expected to know Podman Quadlet or NGINX.
+This guide describes the proxy layer for a compatible Linux host. It is written for a reader who knows basic terminal use but is not expected to know Podman Quadlet or NGINX.
 
-**Scope:** expose an already-working local Ollama API to devices on your existing Tailscale tailnet, using Tailscale Serve and a rootless NGINX proxy. This is not a clean-machine installer for Ubuntu, ROCm, Ollama, or Tailscale.
+**Scope:** expose an already-working local Ollama API to authorized devices on your existing Tailscale tailnet, using Tailscale Serve and a rootless NGINX proxy. The procedure does not install or configure Ollama, GPU drivers, ROCm, or Tailscale itself. It is not yet a clean-machine installer.
 
-**Tested environment:** Ubuntu 26.04.1 LTS, Podman 5.7.0, Tailscale 1.104.2, rootless Podman, and the NGINX unprivileged image. Other versions may behave differently.
+**Platform boundary:** the proxy pattern is not tied to AMD AI Max hardware, but the commands assume Linux, systemd user services, rootless Podman with Quadlet, `pasta`, and a Tailscale installation that supports Serve. Package availability and exact behavior vary by distribution and version. See [platform profiles and compatibility boundaries](PROXY_PLATFORM_PROFILES.md).
+
+**Tested reference profile:** Framework Desktop, AMD Ryzen AI Max+ 395, Ubuntu 26.04.1 LTS, Podman 5.7.0, Tailscale 1.104.2, rootless Podman, and the NGINX unprivileged image. The end-to-end results in this repository were observed on this profile only. Other Linux hosts are candidates for testing, not verified targets.
 
 **Beta limitations:** a basic Android OpenAI-compatible prompt/response and the local non-streaming inference path have passed. A clean completed streaming response, reboot startup without interactive login, and backup restoration are not verified. This guide has not been independently reproduced on a clean machine.
 
@@ -49,7 +51,7 @@ Expected checks:
 - `tailscale status` shows the host connected.
 - Podman reports a version and the final command prints `true`.
 
-If a check fails, stop here and fix that prerequisite first. On Ubuntu, Podman can usually be installed with `sudo apt update && sudo apt install podman`, but confirm that the version in your distribution provides the Quadlet and `pasta` features used below. Do not switch to rootful or host-networked containers as a workaround.
+If a check fails, stop here and fix that prerequisite first. On Ubuntu, Podman may be available through the distribution package manager, but confirm that the package version provides the Quadlet and `pasta` features used below. Use your distribution's official package documentation; do not assume package names or versions are identical everywhere. Do not switch to rootful or host-networked containers as a workaround.
 
 ## Step 1: Create the configuration directories
 
@@ -212,7 +214,7 @@ sudo tailscale serve --bg http://127.0.0.1:11435
 sudo tailscale serve status
 ```
 
-The status should show a tailnet HTTPS endpoint forwarding to `http://127.0.0.1:11435`. Keep the endpoint private. The current Tailscale CLI accepts `http://127.0.0.1:<port>` as a local reverse-proxy target; see the official [Tailscale Serve CLI documentation](https://tailscale.com/docs/reference/tailscale-cli/serve).
+The status should show a tailnet HTTPS endpoint forwarding to `http://127.0.0.1:11435`. Keep the endpoint private. The tested Tailscale CLI accepted `http://127.0.0.1:<port>` as a local reverse-proxy target; verify the syntax against the official [Tailscale Serve CLI documentation](https://tailscale.com/docs/reference/tailscale-cli/serve) for your installed version.
 
 From the host, test the HTTPS endpoint using your actual private tailnet hostname:
 
