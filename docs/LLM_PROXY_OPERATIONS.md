@@ -34,7 +34,30 @@ These are proposed names to make documentation and desktop controls consistent. 
 - Container name: `llm-proxy`
 - Proposed loopback-only proxy listener: `127.0.0.1:11435`
 
-The container-to-host network path still must be tested. Container-local `localhost` is not automatically the host's localhost. Do not change Ollama's bind address or expose port 11434 to the LAN as a shortcut around this issue.
+### Preferred network path (proposed; validate before deployment)
+
+Use rootless Podman with its own `pasta` network namespace, **not** `--network=host`. Host networking would give the container direct access to the host's localhost TCP/UDP services and abstract Unix sockets, weakening the isolation goal.
+
+Current Podman/pasta documentation describes a TCP namespace forward that can map a connection from the container's loopback to one specific host-loopback port. The planned Quadlet setting is:
+
+```ini
+[Container]
+Network=pasta:-T,11434:11434
+PublishPort=127.0.0.1:11435:8080
+```
+
+Interpretation:
+- The container uses its own network namespace.
+- Container-side `127.0.0.1:11434` is forwarded to the host's Ollama listener on `127.0.0.1:11434`.
+- The NGINX listener on container port `8080` is published only to host loopback at `127.0.0.1:11435`; it is not published on LAN interfaces.
+- Tailscale Serve will target `http://127.0.0.1:11435` after local tests pass.
+- NGINX will proxy to `http://127.0.0.1:11434` and set `proxy_set_header Host localhost:11434;`.
+
+This uses a narrow host-loopback TCP forward rather than sharing the entire host network namespace or rebinding Ollama to a LAN-facing address. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback. That trust-boundary implication must be retained in the security notes and checked against the installed Podman/pasta versions.
+
+The exact Quadlet syntax and runtime behavior are **not yet validated on this machine**. Before adopting it, inspect installed versions, then test the port-forward with a temporary harmless host-local test service before connecting to Ollama. If the syntax or security behavior differs, stop and revise the design rather than enabling host networking or changing Ollama's bind address as a shortcut.
+
+This network arrangement does not turn NGINX into a general-purpose forward proxy or alter the host's default route. Its configured upstream remains Ollama. However, don't claim that the container has no outbound network access; rootless `pasta` may permit normal outbound connections. Network egress restriction is a separate control and is not part of this minimal first implementation.
 
 ## Routine desktop controls
 
