@@ -38,6 +38,14 @@ A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework
 - `docs/TEST_LOG_TEMPLATE.md` — test log template
 - `docs/SOURCES.md` — official references
 
+## Proxmox home lab extension
+
+The repository also tracks a proposed six-node Proxmox monitoring and multi-agent development design. These documents are planning artifacts; the monitoring dashboard and agent workflow are not yet deployed.
+
+- `docs/HOMELAB_MONITORING_ARCHITECTURE.md` — proposed six-node Proxmox monitoring topology and security model
+- `docs/HOMELAB_IMPLEMENTATION_PLAN.md` — phased plan and verification criteria
+- `docs/HOMELAB_AGENT_WORKFLOW.md` — proposed coding, independent review, testing, and human approval workflow
+
 ## Platform status
 
 - Framework Desktop, Ryzen AI Max+ 395, Ubuntu 26.04.
