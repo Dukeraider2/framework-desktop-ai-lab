@@ -2,7 +2,7 @@
 
 A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop. The project covers local AI, GPU compute, remote access, and a separate streaming/recording workflow.
 
-> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. Remote Android access through Tailscale HTTPS is still unresolved (HTTP 403); see [the dated status log](docs/STATUS_2026-10-25.md).
+> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. The cause of the Tailscale HTTPS HTTP 403 has been isolated to the upstream Host header; the permanent proxy fix is planned, not deployed. See the [2026-10-26 status update](docs/STATUS_2026-10-26.md) and [LLM proxy operations guide](docs/LLM_PROXY_OPERATIONS.md).
 
 ## Goals
 - Establish a clean, maintainable Ubuntu Desktop baseline.
@@ -56,7 +56,9 @@ Use an imaging tool selected after checking external SSD health, capacity, files
 - `docs/GPU_VALIDATION.md` — Vulkan, ROCm/HIP and PyTorch tests
 - `docs/STREAMING.md` — capture card and OBS
 - `docs/OPSEC.md` — public repository hygiene
-- `docs/STATUS_2026-10-25.md` — sanitized observed results and current troubleshooting checkpoint
+- `docs/STATUS_2026-10-25.md` — earlier sanitized status snapshot
+- `docs/STATUS_2026-10-26.md` — LLM HTTP 403 diagnosis and current proxy status
+- `docs/LLM_PROXY_OPERATIONS.md` — planned proxy architecture, config maintenance, startup, controls, and rollback
 - `docs/INSTALLATION_RECORD.md` — installation sequence, exact retained commands, and observed verification results
 - `docs/TEST_LOG_TEMPLATE.md` — repeatable test records
 - `docs/SOURCES.md` — official references
@@ -66,7 +68,7 @@ Use an imaging tool selected after checking external SSD health, capacity, files
 - ROCm/HIP smoke test passed for `gfx1151`; Vulkan device enumeration identifies the Radeon GPU through RADV.
 - Ollama successfully loaded `qwen3:8b` with GPU placement reported at 100% during the observed test.
 - An encrypted secondary-SSD backup was created and its checksums verified; full restore recovery has not been tested.
-- Tailscale Serve is configured for private HTTPS access, but an Android Ollama client currently receives HTTP 403. The responding layer is not yet identified.
+- Ollama local `/api/tags` and `/v1/models` return HTTP 200. The same routes through Tailscale HTTPS return HTTP 403 unless the upstream Host header is overridden to `localhost:11434`. A Podman reverse-proxy fix is planned but not deployed.
 - The UGREEN capture device workflow remains unvalidated; exact model and sustained 1080p60 behavior are not verified.
 
-See the dated status log for test boundaries. Only observed results are marked as passes.
+See the dated status logs for test boundaries. Only observed results are marked as passes.
