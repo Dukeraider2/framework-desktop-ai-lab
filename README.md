@@ -1,74 +1,49 @@
 # Framework Desktop AI Lab
 
-A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop. The project covers local AI, GPU compute, remote access, and a separate streaming/recording workflow.
+A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop.
 
-> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. A rootless Podman/NGINX LLM proxy is running under user systemd; local discovery/inference tests pass, and Tailscale Serve has been switched to it. HTTPS `/api/tags` passes from the host. Android client access and boot startup after a real reboot remain unverified. See the [2026-10-26 status update](docs/STATUS_2026-10-26.md) and [LLM proxy operations guide](docs/LLM_PROXY_OPERATIONS.md).
+> **Proxy beta:** Community testing is open for v0.1.0-beta.1. Local proxy discovery and non-streaming inference passed, Tailscale HTTPS `/api/tags` returned HTTP 200 after cutover, and an Android OpenAI-compatible client completed a basic prompt/response. A clean completed streaming test, reboot startup without login, and backup restoration remain unverified. See [beta notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md), [beta guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md), [proxy operations](docs/LLM_PROXY_OPERATIONS.md), and [status log](docs/STATUS_2026-10-26.md).
 
-## Goals
-- Establish a clean, maintainable Ubuntu Desktop baseline.
-- Verify network drivers and firmware rather than assuming the defaults are optimal.
-- Re-establish Tailscale access after reinstall without copying old identity/key files.
-- Validate Vulkan separately from ROCm/HIP compute.
-- Add a compatible PyTorch build only after ROCm is verified.
-- Run a small local inference test before downloading larger models.
-- Validate a UGREEN HDMI capture device with Linux and OBS at 1080p60.
-- Prefer open-source tools and evaluate Rust applications where useful.
-- Keep documentation executable, reproducible, and safe for a public repository.
+## Project goals
 
-## Engineering rules
-1. Verify compatibility from current official documentation before selecting OS/kernel/driver versions.
-2. Make one change at a time and record expected and actual results.
-3. Review destructive disk operations before execution; positively identify target disks.
-4. Keep model weights, datasets, and caches outside OS restore images.
-5. Never publish credentials, device keys, private IP maps, MAC addresses, serial numbers, or unredacted logs.
-6. Never mark a test as passed until its output has been observed on the target system.
-7. Prefer variables such as `$HOME` and `$XDG_CONFIG_HOME` over hard-coded personal paths.
+- Maintain a clean Ubuntu Desktop baseline.
+- Verify networking, Vulkan, ROCm/HIP, and local inference independently.
+- Keep instructions reproducible and public documentation OPSEC-conscious.
+- Validate the UGREEN capture workflow and OBS at 1080p60.
 
-## Roadmap
+## Safety rules
 
-| Phase | Goal | Exit criteria |
-|---|---|---|
-| 0 | Compatibility research | Dated, source-backed OS/kernel/ROCm/Vulkan/PyTorch matrix |
-| 1 | Clean Ubuntu baseline | OS boots, updates and inventory verified; RP0 captured |
-| 2 | Network and Tailscale | Driver/firmware identified and remote access tested |
-| 3 | Vulkan | Lightweight render test passes; compute test if practical |
-| 4 | ROCm/HIP | GPU discovery and tiny GPU compute test pass |
-| 5 | PyTorch | Compatible backend performs a small GPU tensor operation |
-| 6 | Local inference | Lightweight model runs; weights stored separately |
-| 7 | Streaming | Capture card and OBS stable at 1080p60 |
-| 8 | Rust/open-source tooling | Useful tools evaluated; optional inventory utility documented |
-
-## Restore points
-- **RP0:** Clean, updated Ubuntu baseline, before ROCm.
-- **RP1:** Network/Tailscale and Vulkan verified.
-- **RP2:** ROCm/HIP verified.
-- **RP3:** PyTorch verified. Exclude model weights.
-- **Optional RP4:** Stable streaming configuration.
-
-Use an imaging tool selected after checking external SSD health, capacity, filesystem and recovery requirements. Verify images and recovery media before relying on them.
+1. Make one change at a time and record observed results.
+2. Review destructive disk operations and identify target disks positively.
+3. Never publish credentials, device keys, private IP maps, MAC addresses, serial numbers, or unredacted logs.
+4. Keep model weights and caches outside OS restore images.
+5. Use `$HOME` and `$XDG_CONFIG_HOME` instead of personal hard-coded paths.
 
 ## Repository map
-- `docs/PLAN.md` — phased plan and gates
-- `docs/COMPATIBILITY.md` — compatibility decision matrix
-- `docs/BASELINE.md` — inventory and baseline requirements
+
+- `docs/PLAN.md` — phased plan
+- `docs/COMPATIBILITY.md` — compatibility matrix
+- `docs/BASELINE.md` — system baseline
 - `docs/RESTORE_POINTS.md` — backup and restore strategy
-- `docs/NETWORK_AND_TAILSCALE.md` — driver verification and remote access
-- `docs/GPU_VALIDATION.md` — Vulkan, ROCm/HIP and PyTorch tests
+- `docs/NETWORK_AND_TAILSCALE.md` — networking and remote access
+- `docs/GPU_VALIDATION.md` — Vulkan, ROCm/HIP, and PyTorch
 - `docs/STREAMING.md` — capture card and OBS
 - `docs/OPSEC.md` — public repository hygiene
-- `docs/STATUS_2026-10-25.md` — earlier sanitized status snapshot
-- `docs/STATUS_2026-10-26.md` — LLM HTTP 403 diagnosis and current proxy status
-- `docs/LLM_PROXY_OPERATIONS.md` — planned proxy architecture, config maintenance, startup, controls, and rollback
-- `docs/INSTALLATION_RECORD.md` — installation sequence, exact retained commands, and observed verification results
-- `docs/TEST_LOG_TEMPLATE.md` — repeatable test records
+- `docs/LLM_PROXY_OPERATIONS.md` — proxy operations and rollback
+- `docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md` — beta guide
+- `docs/RELEASE_NOTES_v0.1.0-beta.1.md` — beta scope and limitations
+- `examples/nginx/ollama.conf` — NGINX example
+- `examples/quadlet/llm-proxy.container` — rootless Quadlet example
+- `docs/INSTALLATION_RECORD.md` — retained commands and observations
+- `docs/TEST_LOG_TEMPLATE.md` — test log template
 - `docs/SOURCES.md` — official references
 
-## Current known context
-- Target platform: AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu 26.04 (Resolute).
-- ROCm/HIP smoke test passed for `gfx1151`; Vulkan device enumeration identifies the Radeon GPU through RADV.
-- Ollama successfully loaded `qwen3:8b` with GPU placement reported at 100% during the observed test.
-- An encrypted secondary-SSD backup was created and its checksums verified; full restore recovery has not been tested.
-- Ollama local `/api/tags` and `/v1/models` return HTTP 200. The same routes through Tailscale HTTPS return HTTP 403 unless the upstream Host header is overridden to `localhost:11434`. A temporary rootless NGINX container now passes local `/api/tags`, `/v1/models`, and non-streaming `/api/generate` tests. Persistent service setup and Tailscale/Android cutover remain pending.
-- The UGREEN capture device workflow remains unvalidated; exact model and sustained 1080p60 behavior are not verified.
+## Platform status
 
-See the dated status logs for test boundaries. Only observed results are marked as passes.
+- Framework Desktop, Ryzen AI Max+ 395, Ubuntu 26.04.
+- ROCm/HIP smoke test passed for `gfx1151`; Vulkan enumerates the Radeon GPU.
+- Ollama loaded `qwen3:8b` with GPU placement reported at 100% in the observed test.
+- Encrypted backup checksums verified; restore not tested.
+- UGREEN capture workflow and sustained 1080p60 behavior remain unverified.
+
+Only observed results are marked as passes. See dated status records for test boundaries.
