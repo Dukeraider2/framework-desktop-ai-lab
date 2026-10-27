@@ -172,5 +172,8 @@ Keep raw logs and host-specific configuration local. Publish only sanitized comm
 ## References
 
 - [Podman Quadlet and systemd integration](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Podman networking options](https://docs.podman.io/en/stable/markdown/podman-run.1.html)
+- [passt/pasta manual: `--tcp-ns` namespace port forwarding](https://passt.top/builds/latest/web/passt.1.html)
+- [Rootless Podman networking examples: host-local access through a narrowly configured pasta forward](https://github.com/eriksjolund/podman-networking-docs#outbound-tcpudp-connections-to-the-hosts-localhost)
 - [NGINX command-line options, including configuration test and reload](https://nginx.org/en/docs/switches.html)
 - [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve)
