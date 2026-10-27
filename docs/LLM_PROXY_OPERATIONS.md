@@ -140,7 +140,9 @@ curl -i http://127.0.0.1:11435/api/tags
 curl -i http://127.0.0.1:11435/v1/models
 ```
 
-Both requests should return `200 OK` with the expected Ollama model response. These tests alone do not prove that the proxy rewrites the upstream header: the end-to-end test must also confirm that the normal tailnet HTTPS request succeeds without manually setting a `Host` header.
+Both requests should return `200 OK` with the expected Ollama model response. Also test a non-streaming generation request and a streaming generation request. For streaming, verify that multiple JSON chunks arrive incrementally; a test ending with `done_reason:"length"` because of a deliberately low token limit still demonstrates stream transport, but not successful completion of the prompt.
+
+These tests alone do not prove that the proxy rewrites the upstream header: the end-to-end test must also confirm that the normal tailnet HTTPS request succeeds without manually setting a `Host` header.
 
 After local checks, test from an authorized tailnet client. Keep the actual private tailnet URL out of public documentation and screenshots. If a result fails, capture the HTTP status and relevant sanitized logs before changing more than one thing.
 
