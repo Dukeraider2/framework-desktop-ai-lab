@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="724" viewBox="0 0 1280 724" role="img" aria-labelledby="title desc">
+<title id="title">Framework Desktop AI Lab build workflow</title>
+<desc id="desc">Six documented phases from compatibility research through capture testing, with restore point checkpoints after the baseline, graphics validation, HIP validation, and inference. Capture and sustained 1080p60 remain unverified.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111d31"/></linearGradient>
+  <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+  <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="11" flood-color="#000" flood-opacity=".28"/></filter>
+  <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9Z" fill="#61718d"/></marker>
+  <marker id="arrowL" markerWidth="9" markerHeight="9" refX="2" refY="4.5" orient="auto"><path d="M9 0L0 4.5 9 9Z" fill="#61718d"/></marker>
+  <style>
+    text{font-family:Inter,Segoe UI,Arial,sans-serif}
+    .muted{fill:#a5b4ca}.white{fill:#f4f7fb}.tiny{font-size:12px;letter-spacing:.08em;font-weight:700}
+    .title{font-size:19px;font-weight:700}.body{font-size:14px}.step{font-size:12px;font-weight:800;letter-spacing:.1em}
+  </style>
+</defs>
+<rect width="1280" height="724" rx="24" fill="url(#bg)"/>
+<path d="M40 111H1240" stroke="#23314a"/>
+<rect x="40" y="37" width="5" height="48" rx="2.5" fill="url(#glow)"/>
+<text x="62" y="50" class="tiny" fill="#67e8f9">FRAMEWORK DESKTOP · AI LAB</text>
+<text x="62" y="82" class="white" font-size="28" font-weight="750">A measured build, one layer at a time</text>
+<text x="1240" y="57" class="muted" font-size="13" text-anchor="end">DOCUMENTED PLAN · PHASES 0–6</text>
+<text x="1240" y="80" fill="#6e7f9c" font-size="12" text-anchor="end">Advance when each check is recorded</text>
+
+<!-- flow connectors: right across the first row, down, then left across the second row -->
+<path d="M414 213H449" stroke="#61718d" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M829 213H864" stroke="#61718d" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1050 280V312" stroke="#61718d" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M866 391H831" stroke="#61718d" stroke-width="2" marker-end="url(#arrowL)"/>
+<path d="M451 391H416" stroke="#61718d" stroke-width="2" marker-end="url(#arrowL)"/>
+<text x="640" y="302" fill="#72829d" font-size="11" letter-spacing=".08em" text-anchor="middle">THEN CONTINUE AFTER GPU CHECKS PASS</text>
+
+<!-- card 1 -->
+<g filter="url(#shadow)">
+ <rect x="40" y="145" width="374" height="136" rx="16" fill="#152238" stroke="#3b526f"/>
+ <rect x="40" y="145" width="374" height="3" rx="1.5" fill="#38bdf8"/>
+</g>
+<circle cx="70" cy="179" r="15" fill="#123f5b"/><text x="70" y="183" class="step" fill="#7dd3fc" text-anchor="middle">01</text>
+<text x="96" y="184" class="tiny" fill="#7dd3fc">PHASE 0 · GATE</text>
+<text x="62" y="218" class="title white">Compatibility research</text>
+<text x="62" y="242" class="body muted">Confirm OS, kernel and AMD stack support.</text>
+<text x="62" y="263" class="body" fill="#bae6fd">Freeze the version matrix before install.</text>
+<!-- card 2 -->
+<g filter="url(#shadow)">
+ <rect x="455" y="145" width="374" height="136" rx="16" fill="#152238" stroke="#3b526f"/>
+ <rect x="455" y="145" width="374" height="3" rx="1.5" fill="#38bdf8"/>
+</g>
+<circle cx="485" cy="179" r="15" fill="#123f5b"/><text x="485" y="183" class="step" fill="#7dd3fc" text-anchor="middle">02</text>
+<text x="511" y="184" class="tiny" fill="#7dd3fc">PHASE 1</text>
+<text x="477" y="218" class="title white">Clean Ubuntu baseline</text>
+<text x="477" y="242" class="body muted">Verify ISO + target disk; record hardware.</text>
+<rect x="477" y="253" width="53" height="19" rx="9.5" fill="#123e37"/><text x="503.5" y="267" class="tiny" fill="#6ee7b7" text-anchor="middle">RP0</text>
+<!-- card 3 -->
+<g filter="url(#shadow)">
+ <rect x="870" y="145" width="374" height="136" rx="16" fill="#152238" stroke="#3b526f"/>
+ <rect x="870" y="145" width="374" height="3" rx="1.5" fill="#38bdf8"/>
+</g>
+<circle cx="900" cy="179" r="15" fill="#123f5b"/><text x="900" y="183" class="step" fill="#7dd3fc" text-anchor="middle">03</text>
+<text x="926" y="184" class="tiny" fill="#7dd3fc">PHASE 2</text>
+<text x="892" y="218" class="title white">Network + Tailscale</text>
+<text x="892" y="242" class="body muted">Check interfaces, drivers and link state.</text>
+<text x="892" y="263" class="body muted">Confirm remote access from another device.</text>
+<!-- card 4 -->
+<g filter="url(#shadow)">
+ <rect x="870" y="324" width="374" height="136" rx="16" fill="#152238" stroke="#3b526f"/>
+ <rect x="870" y="324" width="374" height="3" rx="1.5" fill="#8b5cf6"/>
+</g>
+<circle cx="900" cy="358" r="15" fill="#31265a"/><text x="900" y="362" class="step" fill="#c4b5fd" text-anchor="middle">04</text>
+<text x="926" y="363" class="tiny" fill="#c4b5fd">PHASES 3–4</text>
+<text x="892" y="397" class="title white">Vulkan → ROCm / HIP</text>
+<text x="892" y="421" class="body muted">Enumerate GPU; verify a tiny HIP workload.</text>
+<text x="892" y="442" class="body" fill="#c4b5fd">RP1 after Vulkan · RP2 after HIP success</text>
+<!-- card 5 -->
+<g filter="url(#shadow)">
+ <rect x="455" y="324" width="374" height="136" rx="16" fill="#152238" stroke="#3b526f"/>
+ <rect x="455" y="324" width="374" height="3" rx="1.5" fill="#8b5cf6"/>
+</g>
+<circle cx="485" cy="358" r="15" fill="#31265a"/><text x="485" y="362" class="step" fill="#c4b5fd" text-anchor="middle">05</text>
+<text x="511" y="363" class="tiny" fill="#c4b5fd">PHASE 5</text>
+<text x="477" y="397" class="title white">PyTorch + local inference</text>
+<text x="477" y="421" class="body muted">Match the ROCm build; confirm the device.</text>
+<text x="477" y="442" class="body" fill="#c4b5fd">Record backend, latency and fallback behavior</text>
+<!-- card 6 -->
+<g filter="url(#shadow)">
+ <rect x="40" y="324" width="374" height="136" rx="16" fill="#152238" stroke="#735b31"/>
+ <rect x="40" y="324" width="374" height="3" rx="1.5" fill="#fbbf24"/>
+</g>
+<circle cx="70" cy="358" r="15" fill="#4a3815"/><text x="70" y="362" class="step" fill="#fde68a" text-anchor="middle">06</text>
+<text x="96" y="363" class="tiny" fill="#fde68a">PHASE 6</text>
+<text x="62" y="397" class="title white">Capture + OBS</text>
+<text x="62" y="421" class="body muted">Test capture, audio sync and sustained 1080p60.</text>
+<rect x="62" y="433" width="142" height="19" rx="9.5" fill="#463512"/><text x="133" y="447" class="tiny" fill="#fde68a" text-anchor="middle">NOT YET VERIFIED</text>
+
+<rect x="40" y="493" width="1200" height="92" rx="16" fill="#101b2c" stroke="#293a54"/>
+<text x="64" y="522" class="tiny" fill="#6ee7b7">RESTORE POINTS</text>
+<text x="64" y="549" class="body muted">Save only after the checkpoint is verified.</text>
+<path d="M388 516H1194" stroke="#34534e" stroke-width="2"/>
+<g fill="#34d399" stroke="#101b2c" stroke-width="4">
+ <circle cx="430" cy="516" r="7"/><circle cx="675" cy="516" r="7"/><circle cx="920" cy="516" r="7"/><circle cx="1165" cy="516" r="7"/>
+</g>
+<text x="430" y="546" class="step" fill="#6ee7b7" text-anchor="middle">RP0 · OS baseline</text>
+<text x="675" y="546" class="step" fill="#6ee7b7" text-anchor="middle">RP1 · network + Vulkan</text>
+<text x="920" y="546" class="step" fill="#6ee7b7" text-anchor="middle">RP2 · HIP success</text>
+<text x="1165" y="546" class="step" fill="#6ee7b7" text-anchor="middle">RP3 · inference</text>
+<text x="640" y="619" class="tiny" fill="#93a4bd" text-anchor="middle">SAFETY RAILS · ONE CHANGE AT A TIME · POSITIVELY IDENTIFY TARGET DISKS · KEEP MODEL WEIGHTS OUTSIDE OS RESTORE IMAGES</text>
+<text x="640" y="675" fill="#5f6f89" font-size="12" text-anchor="middle">Summary of docs/PLAN.md and the current status record · Planned checkpoints are not evidence that they were created.</text>
+</svg>

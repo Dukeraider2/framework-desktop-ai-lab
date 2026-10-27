@@ -1,5 +1,7 @@
 # Framework Desktop AI Lab
 
+![Illustrated Framework Desktop AI lab workstation](docs/assets/framework-desktop-ai-lab-banner.png)
+
 <p align="center">
   <strong>Build notes for a local AI workstation, tested one layer at a time.</strong><br>
   AMD Ryzen AI Max+ 395 · Framework Desktop · Ubuntu Desktop
@@ -36,16 +38,9 @@ Only observed results are marked as passes. Read the dated status records for te
 
 The project verifies each layer independently, then records what worked and what still needs testing.
 
-```mermaid
-flowchart LR
-    A[Ubuntu baseline] --> B[Networking]
-    B --> C[GPU: Vulkan + ROCm]
-    C --> D[Local inference]
-    D --> E[Remote proxy beta]
-    A --> F[Encrypted backups]
-    A --> G[Capture + OBS]
-    H[Proxmox lab proposal] -. separate planning track .-> I[Monitoring + agent workflow]
-```
+![Flowchart of the documented Framework Desktop build phases, validation gates, restore points, and pending capture test](docs/assets/build-workflow.svg)
+
+Restore points are planned at validated milestones; their placement in the diagram does not imply that a checkpoint has been created. See the [full build plan](docs/PLAN.md) and [latest status log](docs/STATUS_2026-10-26.md).
 
 ## Documentation
 
