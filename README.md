@@ -2,7 +2,7 @@
 
 A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop.
 
-> **Proxy beta:** Community testing is open for v0.1.0-beta.1. Local proxy discovery and non-streaming inference passed, Tailscale HTTPS `/api/tags` returned HTTP 200 after cutover, and an Android OpenAI-compatible client completed a basic prompt/response. A clean completed streaming test, reboot startup without login, and backup restoration remain unverified. See [beta notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md), [beta guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md), [proxy operations](docs/LLM_PROXY_OPERATIONS.md), and [status log](docs/STATUS_2026-10-26.md).
+> **Proxy beta materials:** Community testing is open for the v0.1.0-beta.1 candidate. Local proxy discovery and non-streaming inference passed, Tailscale HTTPS `/api/tags` returned HTTP 200 after cutover, and an Android OpenAI-compatible client completed a basic prompt/response. A clean completed streaming test, reboot startup without login, and backup restoration remain unverified. See [beta notes](docs/RELEASE_NOTES_v0.1.0-beta.1.md), [beta guide](docs/OLLAMA_TAILSCALE_PROXY_GUIDE.md), [proxy operations](docs/LLM_PROXY_OPERATIONS.md), and [status log](docs/STATUS_2026-10-26.md).
 
 ## Project goals
 
