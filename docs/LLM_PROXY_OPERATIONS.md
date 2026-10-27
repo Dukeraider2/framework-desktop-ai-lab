@@ -1,6 +1,6 @@
 # LLM Proxy: Design and Operations
 
-> **Status: Planned, not deployed.** This document records the agreed design and the intended maintenance workflow. The proxy container, desktop shortcuts, and boot-start configuration have not yet been installed. Do not run the operational commands below until the implementation confirms the service/container names and listener port.
+> **Status: Partially implemented.** The rootless NGINX proxy is running as a Quadlet-generated user service and local API/inference tests pass. Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale end-to-end access remain unverified. Do not treat the deployment as complete until those checks pass.
 
 ## Scope
 
@@ -67,7 +67,7 @@ Interpretation:
 - Tailscale Serve will target `http://127.0.0.1:11435` only after local proxy tests pass.
 - NGINX will proxy to `http://127.0.0.1:11434` and set `proxy_set_header Host localhost:11434;`.
 
-The CLI networking behavior has been observed to work with the installed versions. A temporary NGINX container was also verified locally: `/api/tags`, `/v1/models`, and a non-streaming `/api/generate` request all returned HTTP 200 through the proxy. **Quadlet parsing, systemd service behavior, persistent lifecycle, streaming behavior, and Android/Tailscale access are not yet validated.** Validate those separately before cutover. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut.
+The CLI networking behavior has been observed to work with the installed versions. A temporary NGINX container was verified locally, and the persistent Quadlet service was subsequently parsed, loaded by systemd, started, and tested. Through the persistent service, `/api/tags`, `/v1/models`, and a non-streaming `/api/generate` request all returned HTTP 200. Streaming chunks were verified through the temporary proxy, but the test hit its token limit during the model's thinking field. **Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale access are not yet validated.** Validate those separately before cutover. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut.
 
 ### Configuration file permissions
 
