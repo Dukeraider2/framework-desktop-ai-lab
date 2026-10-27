@@ -68,7 +68,7 @@ Use an imaging tool selected after checking external SSD health, capacity, files
 - ROCm/HIP smoke test passed for `gfx1151`; Vulkan device enumeration identifies the Radeon GPU through RADV.
 - Ollama successfully loaded `qwen3:8b` with GPU placement reported at 100% during the observed test.
 - An encrypted secondary-SSD backup was created and its checksums verified; full restore recovery has not been tested.
-- Ollama local `/api/tags` and `/v1/models` return HTTP 200. The same routes through Tailscale HTTPS return HTTP 403 unless the upstream Host header is overridden to `localhost:11434`. A Podman reverse-proxy fix is planned but not deployed.
+- Ollama local `/api/tags` and `/v1/models` return HTTP 200. The same routes through Tailscale HTTPS return HTTP 403 unless the upstream Host header is overridden to `localhost:11434`. A temporary rootless NGINX container now passes local `/api/tags`, `/v1/models`, and non-streaming `/api/generate` tests. Persistent service setup and Tailscale/Android cutover remain pending.
 - The UGREEN capture device workflow remains unvalidated; exact model and sustained 1080p60 behavior are not verified.
 
 See the dated status logs for test boundaries. Only observed results are marked as passes.
