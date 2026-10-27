@@ -67,7 +67,11 @@ Interpretation:
 - Tailscale Serve will target `http://127.0.0.1:11435` only after local proxy tests pass.
 - NGINX will proxy to `http://127.0.0.1:11434` and set `proxy_set_header Host localhost:11434;`.
 
-The CLI networking behavior has been observed to work with the installed versions. **Quadlet parsing, systemd service behavior, the published proxy port, and the complete NGINX proxy are not yet validated.** Validate those separately before cutover. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut.
+The CLI networking behavior has been observed to work with the installed versions. A temporary NGINX container was also verified locally: `/api/tags`, `/v1/models`, and a non-streaming `/api/generate` request all returned HTTP 200 through the proxy. **Quadlet parsing, systemd service behavior, persistent lifecycle, streaming behavior, and Android/Tailscale access are not yet validated.** Validate those separately before cutover. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut.
+
+### Configuration file permissions
+
+The NGINX unprivileged image could not read the host-mounted file when it was mode `640`, because the container process uses a different UID mapping. Changing the file to mode `644` allowed NGINX to read it. The parent directory was left at mode `750`, restricting traversal to the owner/group. Keep the config free of secrets. During implementation, verify the actual UID mapping and read access instead of broadening directory permissions or running NGINX as root.
 
 This network arrangement does not turn NGINX into a general-purpose forward proxy or alter the host's default route. Its configured upstream remains Ollama. However, don't claim that the container has no outbound network access; rootless `pasta` may permit normal outbound connections. Network egress restriction is a separate control and is not part of this minimal first implementation.
 
