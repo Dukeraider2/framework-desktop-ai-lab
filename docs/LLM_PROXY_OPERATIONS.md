@@ -12,8 +12,8 @@ The proxy's immediate purpose is to rewrite the upstream HTTP `Host` header. Dur
 
 - **Runtime:** Podman container.
 - **Privilege model:** Prefer rootless Podman, managed by a user-level systemd/Quadlet service. Confirm on the target Ubuntu system before installation.
-- **Boot startup:** User service should start without an interactive desktop login. This is expected to require systemd user lingering and a Quadlet install target; test with a real reboot.
-- **Desktop controls:** Start, Stop, and Status shortcuts for this service only.
+- **Boot startup:** User lingering is enabled and the service is wired under the user `default.target`; verify it after a real reboot before claiming boot startup is confirmed.
+- **Desktop controls:** Start, Stop, and Status shortcuts for this service only. The files/scripts exist and scripts pass shell syntax checks; GNOME double-click behavior remains to be confirmed.
 - **Proxy configuration:** A standalone editable NGINX configuration file, mounted read-only into the container.
 - **Request paths:** No application-code allowlist. NGINX configuration controls routing; the initial design is transparent forwarding for Ollama API paths, with the upstream `Host` set to `localhost:11434`. Do not introduce path restrictions unless intentionally configured and tested.
 - **Network exposure:** No public-facing listener. Keep Tailscale Serve tailnet-only and do not enable Funnel. Keep Ollama's existing loopback binding unchanged.
@@ -85,7 +85,7 @@ systemctl --user stop llm-proxy.service
 systemctl --user status llm-proxy.service --no-pager
 ```
 
-The **Stop** action should stop only the proxy. The **Status** shortcut should show the unit state and useful failure details. Shortcuts should not grant general administrative privileges.
+The **Stop** action stops only the proxy. The **Status** shortcut shows the unit and container state. All three scripts passed individual Bash syntax checks, and the Status script successfully displayed a status window. Direct invocation of the Stop script confirmed Ollama stayed running; direct invocation of the Start script returned a success message and the service/API returned to active/HTTP 200. GNOME double-click behavior has not yet been fully verified. Shortcuts should not grant general administrative privileges.
 
 For container diagnostics:
 
