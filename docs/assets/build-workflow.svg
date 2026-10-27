@@ -6,7 +6,7 @@
  <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#38bdf8"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
  <filter id="shadow" x="-12%" y="-15%" width="124%" height="135%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#000" flood-opacity=".25"/></filter>
  <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4 0 8Z" fill="#6f819e"/></marker>
- <style>text{font-family:Inter,Segoe UI,Arial,sans-serif}.white{fill:#f4f7fb}.muted{fill:#a5b4ca}.tiny{font-size:13px;letter-spacing:.08em;font-weight:750}.step{font-size:13px;font-weight:800;letter-spacing:.1em}.title{font-size:20px;font-weight:720}.body{font-size:15px}</style>
+ <style>text{font-family:Inter,Segoe UI,Arial,sans-serif}.white{fill:#f4f7fb}.muted{fill:#a5b4ca}.tiny{font-size:14px;letter-spacing:.08em;font-weight:750}.step{font-size:14px;font-weight:800;letter-spacing:.1em}.title{font-size:22px;font-weight:720}.body{font-size:17px}</style>
 </defs>
 <rect width="960" height="1000" rx="24" fill="url(#bg)"/>
 <rect x="32" y="30" width="5" height="48" rx="2.5" fill="url(#cyan)"/>
@@ -57,7 +57,7 @@
 <text x="87" y="523" class="tiny" fill="#c4b5fd">PHASE 5</text>
 <text x="54" y="561" class="title white">PyTorch + local inference</text>
 <text x="54" y="588" class="body muted">Match ROCm build; confirm the backend.</text>
-<text x="54" y="610" class="body" fill="#c4b5fd">Record latency, memory and fallback behavior</text>
+<text x="54" y="610" class="body" fill="#c4b5fd">Record latency + device behavior</text>
 <!-- 06 -->
 <g filter="url(#shadow)"><rect x="500" y="485" width="428" height="140" rx="16" fill="#152238" stroke="#735b31"/><rect x="500" y="485" width="428" height="3" rx="1.5" fill="#fbbf24"/></g>
 <circle cx="529" cy="518" r="15" fill="#4a3815"/><text x="529" y="522" class="step" fill="#fde68a" text-anchor="middle">06</text>
@@ -78,5 +78,5 @@
 <rect x="32" y="854" width="896" height="70" rx="14" fill="#131e30" stroke="#26354d"/>
 <text x="54" y="883" class="tiny" fill="#93a4bd">SAFETY RAILS</text>
 <text x="54" y="906" class="body muted">One change at a time · identify target disks · keep model weights outside OS restore images</text>
-<text x="480" y="963" fill="#5f6f89" font-size="13" text-anchor="middle">Summary of docs/PLAN.md and current status records · Planned checkpoints are not proof of creation.</text>
+<text x="480" y="963" fill="#5f6f89" font-size="14" text-anchor="middle">Summary of docs/PLAN.md and current status records · Planned checkpoints are not proof of creation.</text>
 </svg>
