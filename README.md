@@ -2,7 +2,7 @@
 
 A reproducible, OPSEC-conscious build log for an AMD Ryzen AI Max+ 395 Framework Desktop running Ubuntu Desktop. The project covers local AI, GPU compute, remote access, and a separate streaming/recording workflow.
 
-> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. The cause of the Tailscale HTTPS HTTP 403 has been isolated to the upstream Host header; the permanent proxy fix is planned, not deployed. See the [2026-10-26 status update](docs/STATUS_2026-10-26.md) and [LLM proxy operations guide](docs/LLM_PROXY_OPERATIONS.md).
+> **Status:** Active validation. HIP smoke test, Vulkan device enumeration, Ollama GPU placement, and encrypted-backup checksum verification have been observed. A rootless Podman/NGINX LLM proxy is running under user systemd; local discovery/inference tests pass, and Tailscale Serve has been switched to it. HTTPS `/api/tags` passes from the host. Android client access and boot startup after a real reboot remain unverified. See the [2026-10-26 status update](docs/STATUS_2026-10-26.md) and [LLM proxy operations guide](docs/LLM_PROXY_OPERATIONS.md).
 
 ## Goals
 - Establish a clean, maintainable Ubuntu Desktop baseline.
