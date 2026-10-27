@@ -1,0 +1,20 @@
+# Example rootless Quadlet for the beta guide.
+# Adjust the config mount source to your actual host path.
+[Unit]
+Description=Rootless NGINX proxy for local Ollama API
+
+[Container]
+Image=docker.io/nginxinc/nginx-unprivileged:stable-alpine
+ContainerName=llm-proxy
+Network=pasta:-T,11434
+PublishPort=127.0.0.1:11435:8080
+Volume=%h/.config/llm-proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
+DropCapability=all
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
