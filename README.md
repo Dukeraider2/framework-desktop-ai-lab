@@ -28,6 +28,7 @@ A reproducibility-focused, OPSEC-conscious record of bringing up a Framework Des
 | **Workstation platform** | Framework Desktop · Ryzen AI Max+ 395 · Ubuntu 26.04.1 LTS |
 | **GPU compute** | ROCm/HIP smoke test passed for `gfx1151`; Vulkan enumerates the Radeon GPU |
 | **Local inference** | Ollama loaded `qwen3:8b`; GPU placement reported at 100% in the observed test |
+| **Image generation** | ComfyUI 0.43.0 started on the AMD HIP backend; Z-Image model discovery corrected |
 | **Remote access** | Tailscale HTTPS proxy endpoint and a basic Android client request verified |
 | **Backups** | Encrypted backup checksums verified; restore not tested |
 | **Capture** | UGREEN capture workflow and sustained 1080p60 behavior remain unverified |
@@ -61,6 +62,21 @@ Restore points are planned at validated milestones; their placement in the diagr
 | [Streaming](docs/STREAMING.md) | Capture card and OBS validation |
 | [Sources](docs/SOURCES.md) | Official references |
 | [Test log template](docs/TEST_LOG_TEMPLATE.md) | Consistent test records |
+
+</details>
+
+<details>
+<summary><strong>ComfyUI image generation on AMD ROCm</strong></summary>
+
+| Resource | What it covers |
+| --- | --- |
+| [ComfyUI on Framework Desktop](docs/COMFYUI_ROCM_SETUP.md) | AMD HIP startup, model placement, private Tailscale Serve access, validation status, and troubleshooting |
+| [Model sorter](scripts/comfy-model-sort) | Exact-name model organizer with dry-run and no-overwrite behavior |
+| [Download watcher](scripts/comfy-model-watch) | inotify-based Downloads watcher |
+| [User service](systemd/comfy-model-watch.service) | systemd user unit for automatic sorting |
+| [Desktop manager](apps/comfy-model-manager.py) | Tkinter GUI for service controls, sorting, folders, and logs |
+
+The ComfyUI record distinguishes successful server startup and model discovery from a completed image-generation test. Private tailnet names/IPs and model weights are not stored in this repository.
 
 </details>
 
