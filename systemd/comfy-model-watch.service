@@ -1,0 +1,12 @@
+[Unit]
+Description=Automatic ComfyUI Model Download Organizer
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=%h/bin/comfy-model-watch
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

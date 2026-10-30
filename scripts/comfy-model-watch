@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+DOWNLOADS="$HOME/Downloads"
+SORTER="$HOME/bin/comfy-model-sort"
+
+echo "Watching: $DOWNLOADS"
+
+if [[ ! -x "$SORTER" ]]; then
+    echo "ERROR: Model sorter is missing or not executable."
+    exit 1
+fi
+
+/usr/bin/inotifywait \
+    --monitor \
+    --quiet \
+    --event close_write \
+    --event moved_to \
+    --format '%f' \
+    "$DOWNLOADS" |
+while IFS= read -r filename; do
+    case "$filename" in
+        *.safetensors)
+            file="$DOWNLOADS/$filename"
+            echo "Detected model: $filename"
+
+            previous=""
+            stable_count=0
+
+            for attempt in {1..60}; do
+                [[ -f "$file" ]] || break
+
+                current=$(stat -c '%s' -- "$file" 2>/dev/null) || break
+
+                if [[ "$current" == "$previous" ]]; then
+                    ((stable_count+=1))
+                else
+                    stable_count=0
+                fi
+
+                if (( stable_count >= 3 )); then
+                    echo "Download appears complete: $filename"
+                    "$SORTER"
+                    break
+                fi
+
+                previous="$current"
+                sleep 2
+            done
+            ;;
+    esac
+done

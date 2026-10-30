@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOWNLOADS="$HOME/Downloads"
+MODELS="$HOME/AI/ComfyUI/app/models"
+DRY_RUN=false
+
+if [[ "${1:-}" == "--dry-run" ]]; then
+    DRY_RUN=true
+elif [[ $# -gt 0 ]]; then
+    echo "Usage: comfy-model-sort [--dry-run]"
+    exit 2
+fi
+
+# Exact filename-to-directory mappings.
+# Add new models only after confirming their correct destination.
+declare -A destinations=(
+    ["qwen_3_4b.safetensors"]="text_encoders"
+    ["z_image_turbo_bf16.safetensors"]="diffusion_models"
+    ["ae.safetensors"]="vae"
+)
+
+moved=0
+already=0
+missing=0
+
+for filename in "${!destinations[@]}"; do
+    source="$DOWNLOADS/$filename"
+    target_dir="$MODELS/${destinations[$filename]}"
+    target="$target_dir/$filename"
+
+    if [[ -f "$target" ]]; then
+        if [[ -f "$source" ]]; then
+            echo "CONFLICT: Both copies exist; leaving Downloads copy untouched: $filename"
+        else
+            echo "INSTALLED: $filename"
+        fi
+        ((already+=1))
+        continue
+    fi
+
+    if [[ ! -f "$source" ]]; then
+        echo "NOT FOUND: $filename"
+        ((missing+=1))
+        continue
+    fi
+
+    if [[ ! -d "$target_dir" ]]; then
+        echo "ERROR: Destination directory does not exist: $target_dir" >&2
+        exit 1
+    fi
+
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "WOULD MOVE: $filename -> ${destinations[$filename]}/"
+    else
+        mv -n -- "$source" "$target"
+
+        if [[ -f "$source" ]]; then
+            echo "NOT MOVED: $filename; source was preserved."
+        elif [[ -f "$target" ]]; then
+            echo "MOVED: $filename -> ${destinations[$filename]}/"
+            ((moved+=1))
+        else
+            echo "ERROR: Could not verify the destination for $filename" >&2
+            exit 1
+        fi
+    fi
+done
+
+# Report unfamiliar model files without moving them.
+shopt -s nullglob
+for file in "$DOWNLOADS"/*.safetensors; do
+    filename="${file##*/}"
+    if [[ -z "${destinations[$filename]+known}" ]]; then
+        echo "UNMAPPED: $filename (left untouched)"
+    fi
+done
+
+echo
+if [[ "$DRY_RUN" == true ]]; then
+    echo "Dry run complete. No files were moved."
+else
+    echo "Complete. Files moved: $moved"
+fi
+echo "Already installed or conflicts: $already"
+echo "Mapped files not in Downloads: $missing"
