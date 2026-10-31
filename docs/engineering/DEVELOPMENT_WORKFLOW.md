@@ -58,7 +58,9 @@ The reviewer examines the Stage 1 package and Stage 2 report and independently v
 
 The reviewer must not merely repeat the implementer's claims. It should inspect relevant code, sources, tests, and measurements. It provides findings, required corrections, and a documented score.
 
-### Review score — 100 points
+### Review score — 100 points (proposed weighting)
+
+The following allocation is an initial proposal for the review rubric. The requirement to score and explain Stage 3 findings is adopted; the exact point weighting remains subject to owner confirmation and may be adjusted after pilot reviews.
 
 | Category | Points |
 | --- | ---: |
