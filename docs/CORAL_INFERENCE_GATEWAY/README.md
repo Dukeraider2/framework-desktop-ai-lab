@@ -6,6 +6,27 @@
 **Primary client:** Frigate NVR on the OPS-M  
 **Additional clients:** Framework Desktop AI Max+ 395 and NAS-hosted applications
 
+## Project scope and sequencing
+
+This project is the **first implementation priority**. Build and validate the Coral-specific inference gateway before starting any attempt at transparent network hardware sharing.
+
+The gateway is an application-level service: clients submit inference jobs over an authenticated network API and receive structured results. It does not emulate a local PCIe device, install a remote-device kernel driver, or make the Coral appear as locally attached hardware.
+
+### In scope for this project
+
+- Make the Coral work reliably as a locally installed accelerator in the Promethean OPS-M.
+- Bring up Frigate as the NVR and validate its native Edge TPU object-detection path.
+- Implement a Coral-aware inference service for supported image tasks.
+- Provide authenticated, documented network APIs for the Framework AI Max and NAS clients.
+- Validate queueing, concurrency, and Frigate-first scheduling.
+- Support face detection and object detection where Edge TPU-compatible models are available. Treat face recognition/identity matching as a separate model pipeline requiring independent validation.
+
+### Explicitly deferred: general network hardware sharing
+
+A broader, hardware-agnostic network accelerator project is a **future research track**, not a dependency for the gateway. That later work may investigate whether GPUs, TPUs, and other host-attached accelerators can be exposed across the LAN through a common abstraction, potentially including client-side device virtualization or driver-level transparency.
+
+Do not design the first gateway around unproven remote-PCIe or driver-emulation assumptions. The gateway should remain useful and independently deployable even if the later research proves infeasible.
+
 ## Purpose
 
 Use the Coral installed locally in the Promethean OPS-M as a shared, LAN-accessible inference resource. Frigate will use it for camera object detection. Other trusted lab systems should be able to submit image-analysis jobs on demand, such as locating faces in a photo collection and returning match metadata so the requesting system can organize files.
