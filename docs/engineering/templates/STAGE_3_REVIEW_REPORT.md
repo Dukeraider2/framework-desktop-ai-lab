@@ -26,7 +26,9 @@ Assess whether the implementation rationale is internally coherent, addresses th
 - [ ] Resource measurements and regressions checked.
 - [ ] Known limitations are disclosed.
 
-## Score (100 points)
+## Score (100 points; proposed category weights)
+
+The scoring requirement is adopted. Category weights below are provisional pending owner confirmation and may be calibrated after pilot reviews.
 | Category | Maximum | Score | Evidence / rationale |
 | --- | ---: | ---: | --- |
 | Specification compliance | 15 | | |
