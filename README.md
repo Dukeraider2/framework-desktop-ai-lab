@@ -118,6 +118,14 @@ This is a **planning track** for a proposed six-node Proxmox monitoring and mult
 
 </details>
 
+## Engineering governance and AI organization
+
+The lab's engineering direction, agent responsibilities, access governance, three-stage evidence-based workflow, resource-efficiency requirements, and Podman-first policy are documented in [Engineering Governance](docs/engineering/README.md).
+
+The versioned [Laboratory Knowledge Base](knowledge-base/README.md) organizes information by hardware/equipment and project. Every equipment record includes an integration section, and manufacturer documentation is indexed separately. Agents are encouraged to contribute sourced material; contributions remain proposed until independently verified.
+
+These documents describe the approved architecture and workflow direction. They do not imply that all agents, services, or integrations are already deployed.
+
 ## Working principles
 
 - Change one thing at a time and record observed results.
