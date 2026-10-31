@@ -18,3 +18,9 @@ GitHub is the primary collaboration and audit platform. Changes to these standar
 ## Status
 
 The organization, roles, and workflows are architectural decisions. Specific agent products, model assignments, numerical resource budgets, and deployment details remain subject to evaluation and verification.
+
+## Reusable task and review templates
+
+- [Stage 1 — Task Package](templates/STAGE_1_TASK_PACKAGE.md)
+- [Stage 2 — Implementation and Evidence Report](templates/STAGE_2_IMPLEMENTATION_REPORT.md)
+- [Stage 3 — Independent Review Report](templates/STAGE_3_REVIEW_REPORT.md)
