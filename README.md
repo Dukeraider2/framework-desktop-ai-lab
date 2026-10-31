@@ -95,6 +95,17 @@ The ComfyUI record distinguishes successful server startup and model discovery f
 </details>
 
 <details>
+<summary><strong>Coral inference gateway and Frigate NVR</strong></summary>
+
+A standalone design track for the Promethean OPS-M with a locally installed Coral Edge TPU, Frigate object detection, and a proposed authenticated LAN API for on-demand inference clients such as the Framework AI Max and NAS. This is an architecture proposal; hardware compatibility, model support, and shared-device arbitration remain to be validated.
+
+| Design | What it covers |
+| --- | --- |
+| [Coral inference gateway](docs/CORAL_INFERENCE_GATEWAY/README.md) | Proposed topology, Frigate/NVR role, remote inference API, face/object analysis boundaries, security, concurrency, and implementation gates |
+
+</details>
+
+<details>
 <summary><strong>Proxmox home lab proposal</strong></summary>
 
 This is a **planning track** for a proposed six-node Proxmox monitoring and multi-agent development design. The monitoring dashboard and agent workflow are not deployed.
