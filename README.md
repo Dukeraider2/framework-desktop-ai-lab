@@ -97,7 +97,7 @@ The ComfyUI record distinguishes successful server startup and model discovery f
 <details>
 <summary><strong>Coral inference gateway and Frigate NVR</strong></summary>
 
-A standalone design track for the Promethean OPS-M with a locally installed Coral Edge TPU, Frigate object detection, and a proposed authenticated LAN API for on-demand inference clients such as the Framework AI Max and NAS. This is an architecture proposal; hardware compatibility, model support, and shared-device arbitration remain to be validated.
+The first implementation priority: a Coral-specific inference gateway on the Promethean OPS-M, with Frigate NVR integration and an authenticated LAN API for the Framework AI Max and NAS. General-purpose network hardware sharing and driver-level device virtualization are explicitly deferred to a later research track. Hardware compatibility, model support, and safe device arbitration remain to be validated.
 
 | Design | What it covers |
 | --- | --- |
