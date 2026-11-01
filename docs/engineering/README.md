@@ -10,6 +10,7 @@ This directory defines the operating rules for the AI engineering and creative p
 - [Development Workflow](DEVELOPMENT_WORKFLOW.md)
 - [Resource Efficiency](RESOURCE_EFFICIENCY.md)
 - [Podman-First Container Policy](PODMAN_FIRST_POLICY.md)
+- [Local Hermes and OpenCode Read-Only Pilot](LOCAL_AGENT_READ_ONLY_PILOT.md)
 
 ## Authority and change control
 
