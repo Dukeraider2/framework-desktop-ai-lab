@@ -5,6 +5,7 @@ This directory defines the operating rules for the AI engineering and creative p
 ## Canonical documents
 
 - [Engineering Constitution](CONSTITUTION.md)
+- [Documentation-First Technical Execution](DOCUMENTATION_FIRST_EXECUTION.md)
 - [Agent Organization](AGENT_ORGANIZATION.md)
 - [Access and Governance](ACCESS_GOVERNANCE.md)
 - [Development Workflow](DEVELOPMENT_WORKFLOW.md)
