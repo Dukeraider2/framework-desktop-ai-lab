@@ -6,6 +6,7 @@ This directory defines the operating rules for the AI engineering and creative p
 
 - [Engineering Constitution](CONSTITUTION.md)
 - [Documentation-First Technical Execution](DOCUMENTATION_FIRST_EXECUTION.md)
+- [Model and Integration Registry Governance](MODEL_AND_INTEGRATION_REGISTRY.md)
 - [Agent Organization](AGENT_ORGANIZATION.md)
 - [Access and Governance](ACCESS_GOVERNANCE.md)
 - [Development Workflow](DEVELOPMENT_WORKFLOW.md)
@@ -18,7 +19,7 @@ GitHub is the primary collaboration and audit platform. Changes to these standar
 
 ## Status
 
-The organization, roles, and workflows are architectural decisions. Specific agent products, model assignments, numerical resource budgets, and deployment details remain subject to evaluation and verification.
+The organization, roles, and workflows are architectural decisions. The model and integration registry records the current user-defined selection policy, including the 100 GB local deployment ceiling and explicit activation gates. Specific model assignments, runtime details, and deployment status remain subject to evaluation and verification. A catalog entry does not mean a model or integration is installed, enabled, or operational.
 
 ## Reusable task and review templates
 
