@@ -1,6 +1,9 @@
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
 {
-  "schema_version": 1,
-  "identity_policy": "Identity and responsibilities are versioned independently from provider/model configuration. No model is specified here or in any SOUL.md.",
+  "schema_version": 2,
+  "identity_policy": "Identity and expertise are versioned independently from provider/model configuration. No model is specified here or in any SOUL.md. Expertise areas are descriptive; tool permissions are provisioned separately and default to none.",
   "coordination": {
     "durable_source": "GitHub issues, pull requests, comments, reviews, and versioned documentation",
     "coordinator": "moncappytime",
@@ -15,21 +18,21 @@
       "profile_distribution": "agents/profiles/moncappytime",
       "soul": "agents/profiles/moncappytime/SOUL.md",
       "aliases": [
-        "moncappytime",
-        "moncappy time"
-      ],
-      "capabilities": [
-        "Systems coordination",
-        "dependency mapping",
-        "decision records",
-        "escalation",
-        "and concise synthesis."
+        "Moncappy Time"
       ],
       "relationships": {
         "coordinator": null,
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "systems_coordination",
+        "dependency_mapping",
+        "decision_records",
+        "escalation",
+        "executive_synthesis"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "dolly",
@@ -38,21 +41,19 @@
       "inspiration": "Dolly Parton",
       "profile_distribution": "agents/profiles/dolly",
       "soul": "agents/profiles/dolly/SOUL.md",
-      "aliases": [
-        "dolly",
-        "dolly"
-      ],
-      "capabilities": [
-        "Facilitation",
-        "accessible writing",
-        "conflict de-escalation",
-        "and helping people participate."
-      ],
+      "aliases": [],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "facilitation",
+        "accessible_writing",
+        "conflict_deescalation",
+        "onboarding"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "robin",
@@ -61,22 +62,19 @@
       "inspiration": "Robin Williams",
       "profile_distribution": "agents/profiles/robin",
       "soul": "agents/profiles/robin/SOUL.md",
-      "aliases": [
-        "robin",
-        "robin"
-      ],
-      "capabilities": [
-        "Ideation",
-        "reframing",
-        "prototyping concepts",
-        "creative systems",
-        "and connecting distant ideas."
-      ],
+      "aliases": [],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "ideation",
+        "reframing",
+        "creative_prototyping",
+        "cross_domain_concepts"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "betty",
@@ -85,22 +83,20 @@
       "inspiration": "Betty White",
       "profile_distribution": "agents/profiles/betty",
       "soul": "agents/profiles/betty/SOUL.md",
-      "aliases": [
-        "betty",
-        "betty"
-      ],
-      "capabilities": [
-        "Verification",
-        "test design",
-        "traceability",
-        "record keeping",
-        "and evidence review."
-      ],
+      "aliases": [],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": true
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "verification",
+        "test_design",
+        "traceability",
+        "institutional_records",
+        "evidence_review"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "richardfeynman",
@@ -110,21 +106,21 @@
       "profile_distribution": "agents/profiles/richardfeynman",
       "soul": "agents/profiles/richardfeynman/SOUL.md",
       "aliases": [
-        "richardfeynman",
-        "richard feynman"
-      ],
-      "capabilities": [
-        "Measurement",
-        "modeling",
-        "hypothesis testing",
-        "software and hardware debugging",
-        "and quantitative analysis."
+        "Richard Feynman"
       ],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "measurement",
+        "modeling",
+        "hypothesis_testing",
+        "technical_debugging",
+        "quantitative_analysis"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "alanwatts",
@@ -134,20 +130,20 @@
       "profile_distribution": "agents/profiles/alanwatts",
       "soul": "agents/profiles/alanwatts/SOUL.md",
       "aliases": [
-        "alanwatts",
-        "alan watts"
-      ],
-      "capabilities": [
-        "Systems thinking",
-        "conceptual analysis",
-        "human-computer interaction",
-        "and tracing indirect effects."
+        "Alan Watts"
       ],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "systems_thinking",
+        "conceptual_analysis",
+        "human_computer_interaction",
+        "indirect_effects"
+      ],
+      "tool_permissions": []
     },
     {
       "id": "fultonjsheen",
@@ -157,21 +153,21 @@
       "profile_distribution": "agents/profiles/fultonjsheen",
       "soul": "agents/profiles/fultonjsheen/SOUL.md",
       "aliases": [
-        "fultonjsheen",
-        "fulton j. sheen"
-      ],
-      "capabilities": [
-        "Institutional accountability",
-        "consent",
-        "justice",
-        "moral philosophy",
-        "and governance review."
+        "Fulton J. Sheen"
       ],
       "relationships": {
         "coordinator": "moncappytime",
         "independent_review_required_for_implementation": false
       },
-      "access_profile": "individually provisioned; least privilege; identity and mentions grant no permission"
+      "access_profile": "identity-only; expertise is descriptive and grants no tools; permissions require separate administrator provisioning",
+      "expertise_areas": [
+        "institutional_accountability",
+        "consent",
+        "justice",
+        "moral_philosophy",
+        "governance_review"
+      ],
+      "tool_permissions": []
     }
   ]
 }
