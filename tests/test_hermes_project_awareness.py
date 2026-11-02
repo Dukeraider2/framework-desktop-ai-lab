@@ -249,22 +249,25 @@ class ReportTests(unittest.TestCase):
 class SenderAuthorizationTests(unittest.TestCase):
     def test_exact_authorized_direct_sender_passes_and_other_context_fails(self):
         fake_context = types.ModuleType("gateway.session_context")
-        values = {"HERMES_SESSION_PLATFORM": "whatsapp", "HERMES_SESSION_CHAT_TYPE": "dm",
-                  "HERMES_SESSION_USER_ID": "15551234567@s.whatsapp.net",
-                  "HERMES_SESSION_CHAT_ID": "15551234567@s.whatsapp.net"}
+        values = {"HERMES_SESSION_PLATFORM": "whatsapp_agent_platform", "HERMES_SESSION_CHAT_TYPE": "dm",
+                  "HERMES_SESSION_USER_ID": "user:15551234567",
+                  "HERMES_SESSION_CHAT_ID": "user:15551234567"}
         fake_context.get_session_env = lambda key, default="": values.get(key, default)
         fake_gateway = types.ModuleType("gateway")
         with tempfile.TemporaryDirectory() as td:
             allowlist = Path(td) / "senders"
-            allowlist.write_text("15551234567@s.whatsapp.net\n")
+            allowlist.write_text("user:15551234567\n")
             allowlist.chmod(0o640)
             with mock.patch.dict(sys.modules, {"gateway": fake_gateway, "gateway.session_context": fake_context}):
                 self.assertTrue(_sender_allowed(allowlist_path=allowlist, require_root_owner=False))
-                values["HERMES_SESSION_USER_ID"] = "15550000000@s.whatsapp.net"
+                values["HERMES_SESSION_USER_ID"] = "user:15550000000"
+                self.assertFalse(_sender_allowed(allowlist_path=allowlist, require_root_owner=False))
+                values["HERMES_SESSION_USER_ID"] = "user:15551234567"
+                values["HERMES_SESSION_PLATFORM"] = "whatsapp"
                 self.assertFalse(_sender_allowed(allowlist_path=allowlist, require_root_owner=False))
                 values["HERMES_SESSION_PLATFORM"] = "telegram"
                 self.assertFalse(_sender_allowed(allowlist_path=allowlist, require_root_owner=False))
-                values["HERMES_SESSION_PLATFORM"] = "whatsapp"
+                values["HERMES_SESSION_PLATFORM"] = "whatsapp_agent_platform"
                 values["HERMES_SESSION_CHAT_TYPE"] = "group"
                 self.assertFalse(_sender_allowed(allowlist_path=allowlist, require_root_owner=False))
 
