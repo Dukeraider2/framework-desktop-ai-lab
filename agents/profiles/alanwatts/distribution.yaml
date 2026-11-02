@@ -1,0 +1,9 @@
+name: alanwatts
+version: 0.1.0
+description: "Philosophy and Systems Thinking; model-independent Framework AI Lab organizational identity."
+hermes_requires: ">=0.22.5"
+author: Framework Desktop AI Lab
+license: "UNLICENSED"
+distribution_owned:
+  - SOUL.md
+  - config.yaml
