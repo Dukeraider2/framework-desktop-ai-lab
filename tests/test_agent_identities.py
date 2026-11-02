@@ -1,3 +1,6 @@
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
 from __future__ import annotations
 
 import json
@@ -16,8 +19,12 @@ class AgentIdentityTests(unittest.TestCase):
         self.assertEqual(len({agent["id"] for agent in agents}), 7)
         self.assertEqual(len({agent["name"] for agent in agents}), 7)
         self.assertNotIn("model", registry)
+        self.assertEqual(registry["schema_version"], 2)
         for agent in agents:
             self.assertNotIn("model", agent)
+            self.assertTrue(agent["expertise_areas"])
+            self.assertEqual(agent["tool_permissions"], [])
+            self.assertEqual(len(agent["aliases"]), len(set(alias.casefold() for alias in agent["aliases"])))
             profile = ROOT / agent["profile_distribution"]
             soul = ROOT / agent["soul"]
             self.assertTrue((profile / "distribution.yaml").is_file())
