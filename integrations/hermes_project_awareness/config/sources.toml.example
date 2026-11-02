@@ -1,0 +1,57 @@
+# Copy to /etc/hermes-inventory/sources.toml as root, then set root:hermes-inventory
+# ownership and mode 0640. Keep allowed_paths exact. Do not add a home directory,
+# wildcard, credential store, or model blob directory. Add exact model/project paths
+# only after the owner approves the path and the corresponding read-only bind/ACL.
+
+allowed_paths = [
+  "/etc/os-release",
+  "/proc/cpuinfo",
+  "/proc/meminfo",
+  "/var/lib/dpkg/status",
+  "/",
+]
+
+[[sources.host_summary]]
+id = "operating_system"
+kind = "file"
+path = "/etc/os-release"
+format = "os_release"
+fields = ["PRETTY_NAME", "VERSION_ID", "VERSION_CODENAME"]
+max_bytes = 16384
+
+[[sources.host_summary]]
+id = "cpu"
+kind = "file"
+path = "/proc/cpuinfo"
+format = "proc_cpuinfo"
+fields = ["vendor_id", "model name", "cpu cores", "siblings"]
+max_bytes = 1048576
+
+[[sources.host_summary]]
+id = "memory"
+kind = "file"
+path = "/proc/meminfo"
+format = "proc_meminfo"
+fields = ["MemTotal", "MemAvailable", "SwapTotal", "SwapFree"]
+max_bytes = 65536
+
+[[sources.host_summary]]
+id = "installed_software"
+kind = "file"
+path = "/var/lib/dpkg/status"
+format = "dpkg_status"
+fields = ["ollama", "podman", "tailscale", "python3", "comfyui"]
+max_bytes = 8388608
+
+[[sources.host_summary]]
+id = "root_storage"
+kind = "disk_usage"
+path = "/"
+
+# The following lists are deliberately absent until the owner approves exact paths.
+# Add [[sources.model_catalog]] entries for Ollama/ComfyUI manifest directories or
+# configuration files, with only non-secret scalar fields. Use directory_metadata
+# for model roots. Never read model weight/blob contents.
+# Add [[sources.project_directories]] entries for explicit project metadata roots.
+# service_inventory is unavailable until a read-only service-state interface is
+# reviewed; do not grant access to a systemd control socket or Podman API socket.

@@ -1,0 +1,61 @@
+[Unit]
+Description=Hermes repository-scoped read-only GitHub provider
+Documentation=file:/opt/hermes-project-awareness/docs/deployment.md
+Requires=hermes-project-awareness-audit.service hermes-github-egress.service
+After=hermes-project-awareness-audit.service hermes-github-egress.service
+ConditionPathExists=/etc/hermes-project-awareness/github.env
+ConditionPathExists=/etc/hermes-project-awareness/runtime.env
+ConditionPathExists=/etc/hermes-project-awareness/github-egress-policy-approved
+
+[Service]
+Type=simple
+User=hermes-github
+Group=hermes-github-client
+SupplementaryGroups=hermes-audit-clients hermes-egress-clients
+WorkingDirectory=/opt/hermes-project-awareness
+Environment=HERMES_PROVIDER_ID=github
+Environment=HERMES_PROVIDER_SOCKET=/run/hermes-github/provider.sock
+EnvironmentFile=/etc/hermes-project-awareness/github.env
+EnvironmentFile=/etc/hermes-project-awareness/runtime.env
+LoadCredential=github-app-key:/etc/hermes-project-awareness/github-app-key.pem
+ExecStart=/usr/bin/python3.14 -m integrations.hermes_project_awareness.provider_service
+Restart=on-failure
+RestartSec=3s
+UMask=0077
+RuntimeDirectory=hermes-github
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=restart
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=tmpfs
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=strict
+ProtectProc=invisible
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX
+NoExecPaths=/
+ExecPaths=/usr/bin/python3.14
+ReadOnlyPaths=/opt/hermes-project-awareness /etc/hermes-project-awareness/github.env /etc/hermes-project-awareness/runtime.env
+ReadWritePaths=/run/hermes-github
+AppArmorProfile=hermes-github-provider
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hermes-github
+
+[Install]
+WantedBy=multi-user.target
