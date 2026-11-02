@@ -1,0 +1,67 @@
+# Merge these keys into the default Hermes profile only after the provider
+# services are installed and tested. Hermes currently has no configured MCP
+# servers. The stdio adapters are unprivileged; data access stays in their
+# dedicated services behind AF_UNIX peer-credential checks.
+
+mcp_servers:
+  frameworklab-github-ro:
+    command: /usr/bin/python3.14
+    args: ["-m", "integrations.hermes_project_awareness.mcp_stdio", "github"]
+    env:
+      PYTHONPATH: /opt/hermes-project-awareness
+    timeout: 30
+    connect_timeout: 10
+    tools:
+      include:
+        - repository_summary
+        - read_document
+        - tree
+        - branches
+        - recent_commits
+        - issues
+        - issue
+        - issue_comments
+        - pull_requests
+        - pull_request_reviews
+  frameworkai1-inventory-ro:
+    command: /usr/bin/python3.14
+    args: ["-m", "integrations.hermes_project_awareness.mcp_stdio", "inventory"]
+    env:
+      PYTHONPATH: /opt/hermes-project-awareness
+    timeout: 20
+    connect_timeout: 10
+    tools:
+      include:
+        - host_summary
+        - model_catalog
+        - project_directories
+        - service_inventory
+        - ollama_models
+        - comfyui_status
+        - comfyui_models
+        - gpu_inventory
+
+# Hermes' built-in MCP discovery auto-injects MCP tools into `hermes-*` bundles.
+# This explicit WhatsApp set preserves the v0.22.5 hermes-whatsapp core toolset
+# while excluding raw provider tools; only the sender-gated wrapper is added.
+platform_toolsets:
+  whatsapp:
+    - web
+    - terminal
+    - file
+    - vision
+    - image_gen
+    - skills
+    - browser
+    - tts
+    - todo
+    - memory
+    - session_search
+    - clarify
+    - code_execution
+    - delegation
+    - cronjob
+    - kanban
+    - computer_use
+    - connections
+    - frameworklab-awareness

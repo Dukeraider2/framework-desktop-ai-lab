@@ -1,0 +1,8 @@
+name: frameworklab-project-awareness
+version: 0.1.0
+description: Evidence-based read-only project and host status reports for authorized WhatsApp senders.
+requires_hermes: ">=0.22.5"
+capabilities:
+  - project_status
+provides_tools:
+  - frameworklab_project_status
