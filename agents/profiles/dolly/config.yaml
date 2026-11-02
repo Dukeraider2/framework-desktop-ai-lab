@@ -1,0 +1,11 @@
+# Identity-only profile baseline. Model/provider and approved integrations are
+# provisioned separately; keep execution and messaging tools absent by default.
+plugins:
+  enabled: []
+mcp_servers: {}
+platform_toolsets:
+  cli:
+    - todo
+    - memory
+    - session_search
+    - clarify
