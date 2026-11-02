@@ -289,27 +289,59 @@ sudo install -o root -g hermes-audit-clients -m 0640 \
 sudoedit /etc/hermes-project-awareness/authorized-whatsapp-senders
 ```
 
-Before profile edits, use `hermes --help`, `hermes plugins --help`, and
-`hermes mcp --help` from the deployed v0.22.5 installation. Install the native
-plugin under the Hermes user's plugin directory using the documented install
-method and validate it (`hermes plugins validate <plugin-path> --json`). The
-plugin reads sender identity from Hermes session context; that API is currently
-a private v0.22.5 import and must be revalidated on every Hermes upgrade.
+Before profile edits, capture the current profile and MCP config path and inspect
+the current WhatsApp toolset. Names below use Hermes v0.22.5 CLI syntax:
 
-Register two stdio MCP commands in the active `default` profile only:
-
-```text
-python3 -m integrations.hermes_project_awareness.mcp_stdio github
-python3 -m integrations.hermes_project_awareness.mcp_stdio inventory
+```sh
+hermes -p default config path
+hermes -p default config get platform_toolsets.whatsapp
+hermes -p default mcp list
 ```
 
-Use Hermes CLI/profile configuration rather than replacing the profile file.
-Back up first. Merge only these two MCP entries and the single
-`frameworklab_project_status` tool into the explicit WhatsApp toolset. Preserve
-all existing `hermes-whatsapp` tools and channel/account settings. Do not expose
-raw provider tools or add tools to the `frameworklab` profile or OpenCode
-launcher. Validate config syntax, active profile, plugin load, and tool list
-before gateway restart.
+Install the native plugin as the Hermes account, flattening its two runtime
+files into the supported one-level plugin directory. The wrapper imports its
+provider package from `/opt/hermes-project-awareness`:
+
+```sh
+install -d -m 0700 "$HOME/.hermes/plugins/frameworklab-project-awareness"
+install -m 0644 \
+  /opt/hermes-project-awareness/integrations/hermes_project_awareness/hermes_plugin/__init__.py \
+  "$HOME/.hermes/plugins/frameworklab-project-awareness/__init__.py"
+install -m 0644 \
+  /opt/hermes-project-awareness/integrations/hermes_project_awareness/hermes_plugin/plugin.yaml \
+  "$HOME/.hermes/plugins/frameworklab-project-awareness/plugin.yaml"
+hermes -p default plugins validate "$HOME/.hermes/plugins/frameworklab-project-awareness" --json
+hermes -p default plugins enable frameworklab-project-awareness --no-allow-tool-override
+```
+
+The plugin reads sender identity from Hermes session context; that is currently
+a private v0.22.5 import and must be revalidated on every Hermes upgrade.
+
+Add two stdio MCP servers to `default` only. Check the names are unused first;
+these commands create MCP entries and do not pass GitHub credentials:
+
+```sh
+hermes -p default mcp add frameworklab-github-ro \
+  --command /usr/bin/python3.14 --env PYTHONPATH=/opt/hermes-project-awareness \
+  --args -m integrations.hermes_project_awareness.mcp_stdio github
+hermes -p default mcp add frameworkai1-inventory-ro \
+  --command /usr/bin/python3.14 --env PYTHONPATH=/opt/hermes-project-awareness \
+  --args -m integrations.hermes_project_awareness.mcp_stdio inventory
+hermes -p default mcp list
+hermes -p default mcp test frameworklab-github-ro
+hermes -p default mcp test frameworkai1-inventory-ro
+```
+
+Then edit the `default` profile with `hermes -p default config edit`. Merge the
+MCP selections and explicit WhatsApp toolset from
+`/usr/share/hermes-project-awareness/config/hermes-mcp-and-toolsets.yaml.example`;
+preserve every existing WhatsApp tool and channel/account setting, adding only
+`frameworklab-awareness`. Keep raw `frameworklab-github-ro` and
+`frameworkai1-inventory-ro` MCP tools out of the WhatsApp toolset. Validate with
+`hermes -p default config check`, `hermes -p default mcp list`,
+`hermes -p default plugins list`, and the tool list from an actual gateway
+session. Do not edit agent profiles or the OpenCode launcher. Record the
+pre/post config diff with secrets redacted before restarting the gateway.
 
 ## 9. Start order and smoke checks
 

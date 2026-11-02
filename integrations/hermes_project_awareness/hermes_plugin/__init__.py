@@ -12,7 +12,10 @@ from pathlib import Path
 from typing import Any
 
 
-_PACKAGE_ROOT = Path(__file__).resolve().parents[3]
+_PACKAGE_ROOT = Path(os.environ.get("HERMES_PROJECT_AWARENESS_ROOT", "/opt/hermes-project-awareness"))
+if not (_PACKAGE_ROOT / "integrations/hermes_project_awareness").is_dir():
+    # Source-tree tests and development may load the plugin before packaging it.
+    _PACKAGE_ROOT = Path(__file__).resolve().parents[3]
 if str(_PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PACKAGE_ROOT))
 
