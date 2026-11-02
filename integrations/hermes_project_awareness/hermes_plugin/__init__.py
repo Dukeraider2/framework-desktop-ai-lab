@@ -52,7 +52,12 @@ def _sender_allowed(*, allowlist_path: Path = SENDER_ALLOWLIST, require_root_own
         chat_type = get_session_env("HERMES_SESSION_CHAT_TYPE", "").strip().lower()
         sender = get_session_env("HERMES_SESSION_USER_ID", "").strip()
         chat = get_session_env("HERMES_SESSION_CHAT_ID", "").strip()
-        if platform != "whatsapp" or chat_type not in {"dm", "direct"} or not sender or sender != chat:
+        # Meta's WhatsApp Agent Platform registers under its own Hermes platform
+        # key, and the adapter's canonical participant ID is ``user:<id>``.
+        # Do not accept the similarly named Baileys ``whatsapp`` transport here:
+        # this report tool is deployed only through the inspected Agent Platform.
+        if (platform != "whatsapp_agent_platform" or chat_type not in {"dm", "direct"}
+                or not sender.startswith("user:") or sender != chat):
             return False
         if not _SENDER_RE.fullmatch(sender):
             return False
