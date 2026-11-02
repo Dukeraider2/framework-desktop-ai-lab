@@ -1,6 +1,3 @@
-Failed to create stream fd: Operation not permitted
-Failed to create stream fd: Operation not permitted
-Failed to create stream fd: Operation not permitted
 # Founding agent identities
 
 The registry and individual Hermes profile distributions define durable organizational identities. Each distribution has one canonical `SOUL.md`; install it as an independent Hermes profile with `hermes profile install ./agents/profiles/<profile>`. The profiles intentionally ship no model, credentials, MCP servers, WhatsApp channels, or permission grants. Their installed baseline config enables only `todo`, `memory`, `session_search`, and `clarify`; it excludes terminal, browser, and delegation tools. This is a constrained convenience toolset, not a grant to access project data or infrastructure. Model/provider configuration is managed separately for each profile, so replacing a model does not replace identity. Do not clone the WhatsApp-enabled `default` profile or copy its credentials into agent profiles.

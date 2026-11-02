@@ -1,0 +1,3 @@
+# One exact WhatsApp direct-message sender ID per line, in the form Hermes binds
+# as HERMES_SESSION_USER_ID. Empty means deny all. Do not use wildcards or names.
+# This machine-local file contains personal identifiers and must not be committed.

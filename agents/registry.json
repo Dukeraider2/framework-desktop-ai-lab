@@ -1,6 +1,3 @@
-Failed to create stream fd: Operation not permitted
-Failed to create stream fd: Operation not permitted
-Failed to create stream fd: Operation not permitted
 {
   "schema_version": 2,
   "identity_policy": "Identity and expertise are versioned independently from provider/model configuration. No model is specified here or in any SOUL.md. Expertise areas are descriptive; tool permissions are provisioned separately and default to none.",

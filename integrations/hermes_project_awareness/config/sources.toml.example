@@ -1,0 +1,86 @@
+# Copy to /etc/hermes-inventory/sources.toml as root, then set root:hermes-inventory
+# ownership and mode 0640. Keep allowed_paths exact. Do not add a home directory,
+# wildcard, credential store, or model blob directory. Add exact model/project paths
+# only after the owner approves the path and the corresponding read-only bind/ACL.
+
+allowed_paths = [
+  "/etc/os-release",
+  "/proc/cpuinfo",
+  "/proc/meminfo",
+  "/var/lib/dpkg/status",
+  "/",
+  # Add exact ComfyUI model directories only after confirming and approving paths.
+  # Example only: "/srv/comfyui/models/checkpoints",
+]
+
+[[sources.host_summary]]
+id = "operating_system"
+kind = "file"
+path = "/etc/os-release"
+format = "os_release"
+fields = ["PRETTY_NAME", "VERSION_ID", "VERSION_CODENAME"]
+max_bytes = 16384
+
+[[sources.host_summary]]
+id = "cpu"
+kind = "file"
+path = "/proc/cpuinfo"
+format = "proc_cpuinfo"
+fields = ["vendor_id", "model name", "cpu cores", "siblings"]
+max_bytes = 1048576
+
+[[sources.host_summary]]
+id = "memory"
+kind = "file"
+path = "/proc/meminfo"
+format = "proc_meminfo"
+fields = ["MemTotal", "MemAvailable", "SwapTotal", "SwapFree"]
+max_bytes = 65536
+
+[[sources.host_summary]]
+id = "installed_software"
+kind = "file"
+path = "/var/lib/dpkg/status"
+format = "dpkg_status"
+fields = ["ollama", "podman", "tailscale", "python3", "comfyui"]
+max_bytes = 8388608
+
+[[sources.host_summary]]
+id = "root_storage"
+kind = "disk_usage"
+path = "/"
+
+# The following lists are deliberately absent until the owner approves exact paths.
+# Use [[sources.model_catalog]] kind="model_directory" for exact ComfyUI model
+# directories and an extension allowlist. Only file names and sizes are returned;
+# file contents, hidden entries, symlinks, and other extensions are excluded.
+# [[sources.model_catalog]]
+# id = "comfyui_checkpoints"
+# kind = "model_directory"
+# path = "/srv/comfyui/models/checkpoints"
+# extensions = [".safetensors", ".ckpt"]
+
+# These fixed API adapters never accept hostnames, ports, or paths from requests.
+# To enable them, install the opt-in systemd drop-in in docs/deployment.md. The
+# default inventory service remains in a private network namespace.
+[[sources.ollama_models]]
+id = "ollama_local_api"
+kind = "ollama_api"
+
+[[sources.comfyui_status]]
+id = "comfyui_local_api"
+kind = "comfyui_system"
+
+[[sources.comfyui_models]]
+id = "comfyui_model_api"
+kind = "comfyui_models"
+categories = ["checkpoints", "loras", "vae", "controlnet", "upscale_models"]
+
+[[sources.gpu_inventory]]
+id = "sysfs_gpu_inventory"
+kind = "gpu_sysfs"
+
+# Add [[sources.project_directories]] entries for explicit project metadata roots.
+# service_inventory, Podman, and Tailscale are unavailable until a read-only
+# mediator with operation-level restrictions is reviewed. Do not grant access to
+# systemd control, Podman, or Tailscale sockets: those APIs include mutating calls.
