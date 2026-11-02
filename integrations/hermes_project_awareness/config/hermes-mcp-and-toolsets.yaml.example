@@ -5,7 +5,7 @@
 
 mcp_servers:
   frameworklab-github-ro:
-    command: /usr/bin/python3
+    command: /usr/bin/python3.14
     args: ["-m", "integrations.hermes_project_awareness.mcp_stdio", "github"]
     env:
       PYTHONPATH: /opt/hermes-project-awareness
@@ -19,10 +19,12 @@ mcp_servers:
         - branches
         - recent_commits
         - issues
+        - issue
+        - issue_comments
         - pull_requests
         - pull_request_reviews
   frameworkai1-inventory-ro:
-    command: /usr/bin/python3
+    command: /usr/bin/python3.14
     args: ["-m", "integrations.hermes_project_awareness.mcp_stdio", "inventory"]
     env:
       PYTHONPATH: /opt/hermes-project-awareness
@@ -34,6 +36,10 @@ mcp_servers:
         - model_catalog
         - project_directories
         - service_inventory
+        - ollama_models
+        - comfyui_status
+        - comfyui_models
+        - gpu_inventory
 
 # Hermes' built-in MCP discovery auto-injects MCP tools into `hermes-*` bundles.
 # This explicit WhatsApp set preserves the v0.22.5 hermes-whatsapp core toolset

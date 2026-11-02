@@ -18,6 +18,7 @@ PROVIDERS = {
             "repository_summary": {"type": "object", "properties": {}, "additionalProperties": False},
             "read_document": {"type": "object", "properties": {"path": {"type": "string"}, "ref": {"type": "string"}}, "required": ["path"], "additionalProperties": False},
             "tree": {"type": "object", "properties": {"ref": {"type": "string"}}, "required": ["ref"], "additionalProperties": False},
+            "branches": {"type": "object", "properties": {}, "additionalProperties": False},
             "recent_commits": {"type": "object", "properties": {"branch": {"type": "string"}, "limit": {"type": "integer", "minimum": 1, "maximum": 30}}, "additionalProperties": False},
             "issues": {"type": "object", "properties": {"state": {"type": "string", "enum": ["open", "closed", "all"]}}, "additionalProperties": False},
             "issue": {"type": "object", "properties": {"number": {"type": "integer", "minimum": 1}}, "required": ["number"], "additionalProperties": False},

@@ -271,6 +271,7 @@ class MCPAdapterTests(unittest.TestCase):
         tools = response["result"]["tools"]
         self.assertTrue(all(tool["annotations"]["readOnlyHint"] for tool in tools))
         self.assertFalse(any("write" in tool["name"] or "delete" in tool["name"] for tool in tools))
+        self.assertIn("branches", {tool["name"] for tool in tools})
 
     def test_mcp_call_forwards_only_fixed_operation(self):
         with mock.patch.object(mcp_stdio, "request", return_value={"result": {"provider_id": "github"}}) as request:
