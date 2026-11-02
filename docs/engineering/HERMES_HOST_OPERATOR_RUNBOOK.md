@@ -93,6 +93,12 @@ sha256sum -c hermes-project-awareness-0.2.0.tar.gz.sha256
 tar -tzf hermes-project-awareness-0.2.0.tar.gz | less
 ```
 
+The packaging script includes agent dispatch files and local-model collection
+only when the checked-out revision contains the PR #6 files. A PR #5-only
+checkout therefore produces a provider package without the dispatch service;
+use the final PR #6 revision to produce the consolidated bundle described by
+the remainder of this runbook.
+
 Transfer it using the organization's approved file channel. On the host, verify
 the checksum against the independently transmitted value, extract to a
 root-owned staging directory, and verify the bundle's internal manifest:
@@ -300,6 +306,12 @@ sudo systemctl enable --now hermes-github-egress.service
 sudo systemctl status hermes-github-egress.service --no-pager
 sudo systemctl enable --now hermes-github.service
 sudo systemctl status hermes-github.service --no-pager
+```
+
+Only when the PR #6 dispatch service is present in the installed package and
+the actor allowlist is reviewed:
+
+```sh
 sudo systemctl enable --now hermes-agent-dispatch.service
 sudo systemctl status hermes-agent-dispatch.service --no-pager
 ```
