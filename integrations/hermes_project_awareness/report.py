@@ -7,6 +7,8 @@ from typing import Any
 
 from .evidence import EVIDENCE_CLASSES, validate_evidence, validate_claim
 
+MAX_CLAIMS_PER_CLASS = 12
+
 
 def _evidence_map(snapshots: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], set[str]]:
     evidence: dict[str, dict[str, Any]] = {}
@@ -148,7 +150,7 @@ def render_report(report: dict[str, Any]) -> str:
         if not rows:
             lines.append("• No supported claims in this category.")
             continue
-        for claim in rows:
+        for claim in rows[:MAX_CLAIMS_PER_CLASS]:
             refs = []
             for evidence_id in claim.get("evidence_ids", []):
                 row = evidence.get(evidence_id)
@@ -159,6 +161,16 @@ def render_report(report: dict[str, Any]) -> str:
             citation = " Evidence: " + ", ".join(refs) if refs else ""
             reason = f" Reason: {claim['reason']}" if claim.get("reason") else ""
             lines.append(f"• {claim['text']}{citation}{reason}")
+        omitted = len(rows) - MAX_CLAIMS_PER_CLASS
+        if omitted > 0:
+            refs = sorted({ref for claim in rows[MAX_CLAIMS_PER_CLASS:]
+                           for ref in claim.get("evidence_ids", [])})
+            citations = []
+            for ref in refs:
+                item = evidence.get(ref, {})
+                if item.get("source_url"):
+                    citations.append(f"[{ref}]({item['source_url']})")
+            lines.append(f"• {omitted} additional record(s) omitted for brevity. Evidence: {', '.join(citations) or 'unavailable'}")
     host = report.get("host_inventory") or {}
     if host:
         lines.extend(["", "Host observations (not project-completion claims)"])
