@@ -224,12 +224,31 @@ actor allowlist, an exact repository, an assigned issue with `agent:<id>` label,
 and the agent's static action policy. The dispatch service cannot write to
 GitHub.
 
-The GitHub provider's outbound address policy must be reviewed independently.
-Do not create the `github-egress-policy-approved` marker or start egress until
-the administrator has validated fixed DNS resolution and API-only destinations
-against current GitHub metadata and the host firewall. The write-capable App,
-if separately approved in the future, must use another identity/credential and
-typed write adapter.
+The provider egress unit denies all IP traffic until a host administrator
+generates and reviews the allowlist. GitHub documents that its ranges can change
+and may not be exhaustive, so this is a manually refreshed host policy with an
+availability tradeoff. Generate a candidate drop-in (the script does not install
+or activate it), inspect every CIDR and resolver, then validate it before adding
+the policy marker:
+
+```sh
+python3 /opt/hermes-project-awareness/integrations/hermes_project_awareness/github_egress_policy.py \
+  > /tmp/hermes-github-egress.conf
+cat /tmp/hermes-github-egress.conf
+sudo install -d -o root -g root -m 0755 /etc/systemd/system/hermes-github-egress.service.d
+sudo install -o root -g root -m 0644 /tmp/hermes-github-egress.conf \
+  /etc/systemd/system/hermes-github-egress.service.d/egress-policy.conf
+sudo systemd-analyze verify /etc/systemd/system/hermes-github-egress.service
+sudo touch /etc/hermes-project-awareness/github-egress-policy-approved
+sudo systemctl daemon-reload
+```
+
+The unit still denies all destinations except the listed GitHub API CIDRs and
+the host's configured resolver address. Refresh this snapshot after GitHub
+changes its meta ranges or the DNS resolver changes. If GitHub publishes a new
+range before policy refresh, provider traffic fails closed. The write-capable
+App, if separately approved in the future, must use another identity/credential
+and typed write adapter.
 
 ## 7. Root-managed runtime configuration and audit
 

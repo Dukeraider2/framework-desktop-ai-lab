@@ -11,6 +11,9 @@ from pathlib import Path
 from unittest import mock
 
 from integrations.hermes_project_awareness import inventory, mcp_stdio
+from integrations.hermes_project_awareness.github_egress_policy import (
+    PolicyError, parse_api_networks, parse_resolvers, render_dropin,
+)
 from integrations.hermes_project_awareness.evidence import validate_claim
 from integrations.hermes_project_awareness.github import (
     GitHubProvider, GitHubProviderError, GitHubSettings,
@@ -67,6 +70,7 @@ class GitHubProviderTests(unittest.TestCase):
             provider.call("read_document", {"path": "../private"})
         self.assertEqual(provider.transport.calls, [])
 
+
     def test_issue_operation_drops_pull_requests_and_marks_partial_pages(self):
         path = "/repos/Dukeraider2/framework-desktop-ai-lab/issues?state=open&per_page=100&sort=updated&direction=desc"
         rows = [{"number": 5, "title": "Issue", "state": "open", "html_url": "https://github.com/Dukeraider2/framework-desktop-ai-lab/issues/5", "labels": []},
@@ -121,6 +125,25 @@ class GitHubProviderTests(unittest.TestCase):
         with self.assertRaises(GitHubProviderError):
             provider.call("issue_comments", {"since": "https://attacker.example/path", "page": 1})
         self.assertEqual(provider.transport.calls, [])
+
+
+class GitHubEgressPolicyTests(unittest.TestCase):
+    def test_dropin_contains_only_validated_api_and_configured_resolver_ranges(self):
+        networks = parse_api_networks(json.dumps({"api": ["192.30.252.0/22", "2606:50c0::/32"]}).encode())
+        resolvers = parse_resolvers("nameserver 127.0.0.53\noptions edns0\n")
+        result = render_dropin(networks, resolvers)
+        self.assertIn("IPAddressDeny=any", result)
+        self.assertIn("IPAddressAllow=192.30.252.0/22", result)
+        self.assertIn("IPAddressAllow=2606:50c0::/32", result)
+        self.assertIn("IPAddressAllow=127.0.0.53/32", result)
+
+    def test_policy_rejects_malformed_or_unbounded_sources(self):
+        with self.assertRaises(PolicyError):
+            parse_api_networks(json.dumps({"api": ["0.0.0.0/0"]}).encode())
+        with self.assertRaises(PolicyError):
+            parse_api_networks(json.dumps({"api": ["127.0.0.1/32"]}).encode())
+        with self.assertRaises(PolicyError):
+            parse_resolvers("search example.test\n")
 
 
 class InventoryTests(unittest.TestCase):
