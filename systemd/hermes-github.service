@@ -5,6 +5,7 @@ Requires=hermes-project-awareness-audit.service hermes-github-egress.service
 After=hermes-project-awareness-audit.service hermes-github-egress.service
 ConditionPathExists=/etc/hermes-project-awareness/github.env
 ConditionPathExists=/etc/hermes-project-awareness/runtime.env
+ConditionPathExists=/etc/hermes-project-awareness/github-client-uids.env
 ConditionPathExists=/etc/hermes-project-awareness/github-egress-policy-approved
 
 [Service]
@@ -17,6 +18,7 @@ Environment=HERMES_PROVIDER_ID=github
 Environment=HERMES_PROVIDER_SOCKET=/run/hermes-github/provider.sock
 EnvironmentFile=/etc/hermes-project-awareness/github.env
 EnvironmentFile=/etc/hermes-project-awareness/runtime.env
+EnvironmentFile=/etc/hermes-project-awareness/github-client-uids.env
 LoadCredential=github-app-key:/etc/hermes-project-awareness/github-app-key.pem
 ExecStart=/usr/bin/python3.14 -m integrations.hermes_project_awareness.provider_service
 Restart=on-failure

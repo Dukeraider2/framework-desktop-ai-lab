@@ -1,4 +1,19 @@
-# Project awareness deployment gates
+# Project awareness deployment package
+
+The consolidated operator runbook is
+[`HERMES_HOST_OPERATOR_RUNBOOK.md`](../../../docs/engineering/HERMES_HOST_OPERATOR_RUNBOOK.md).
+It covers the execution matrix, gateway diagnostics, package install and
+rollback, credential boundaries, sender enrollment, MCP integration, and live
+validation. Provider and service templates remain uninstalled until the host
+operator completes the runbook.
+
+Build the tarball from repository root with
+`./scripts/package-hermes-project-awareness.sh ./dist`. Verify the outer
+SHA-256 file and internal `SHA256SUMS` manifest after transfer. The installer
+backs up exact package paths, validates and loads AppArmor in enforce mode,
+installs systemd units, and reloads systemd; it does not enable or start units.
+The rollback script refuses active/enabled units and preserves provider state
+and audit records.
 
 This source tree contains provider and service templates. It is not installed or enabled by this document.
 

@@ -24,8 +24,10 @@ _REQUEST_ID = re.compile(r"^[0-9a-f]{32}$")
 _EVENTS = frozenset({"denied", "started", "provider_started", "provider_completed", "failed", "completed"})
 _PROVIDERS = frozenset({"hermes", "github", "inventory"})
 _OPERATIONS = frozenset({"project_status", "host_summary", "model_catalog", "project_directories", "service_inventory",
+                         "ollama_models", "comfyui_status", "comfyui_models", "gpu_inventory",
                          "repository_summary", "read_document", "branches", "recent_commits", "issues_open",
-                         "pull_requests_open", "pull_requests_closed", "pull_request_reviews", "tree"})
+                         "pull_requests_open", "pull_requests_closed", "pull_request_reviews", "issue",
+                         "issue_comments", "tree"})
 RETENTION_DAYS = 90
 MAX_DAILY_BYTES = 8 * 1024 * 1024
 

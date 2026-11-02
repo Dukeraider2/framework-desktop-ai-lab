@@ -95,6 +95,33 @@ class GitHubProviderTests(unittest.TestCase):
         self.assertIsNone(result["records"][0]["html_url"])
         self.assertEqual(result["evidence"][0]["source_url"], "https://github.com/Dukeraider2/framework-desktop-ai-lab")
 
+    def test_issue_comments_are_repository_bound_bounded_and_read_only(self):
+        path = ("/repos/Dukeraider2/framework-desktop-ai-lab/issues/comments?since=2026-11-01T00%3A00%3A00Z"
+                "&sort=created&direction=asc&per_page=20&page=1")
+        row = {"id": 123456789, "issue_url": "https://api.github.com/repos/Dukeraider2/framework-desktop-ai-lab/issues/12",
+               "user": {"login": "Dukeraider2"}, "body": "/agent run betty review", "created_at": "2026-11-01T12:00:00Z",
+               "updated_at": "2026-11-01T12:00:00Z", "html_url": "https://github.com/Dukeraider2/framework-desktop-ai-lab/issues/12#issuecomment-123"}
+        provider = github_provider({path: (200, {}, json.dumps([row]).encode())})
+        result = provider.call("issue_comments", {"since": "2026-11-01T00:00:00Z", "page": 1})
+        self.assertEqual(result["records"][0]["issue_number"], 12)
+        self.assertEqual(result["records"][0]["actor"], "Dukeraider2")
+        self.assertEqual(provider.transport.calls[0][0], "GET")
+
+    def test_issue_comment_from_other_repository_or_unbounded_body_is_rejected(self):
+        path = ("/repos/Dukeraider2/framework-desktop-ai-lab/issues/comments?since=2026-11-01T00%3A00%3A00Z"
+                "&sort=created&direction=asc&per_page=20&page=1")
+        row = {"id": 123456789, "issue_url": "https://api.github.com/repos/attacker/repo/issues/12",
+               "user": {"login": "Dukeraider2"}, "body": "/agent run betty review"}
+        provider = github_provider({path: (200, {}, json.dumps([row]).encode())})
+        with self.assertRaises(GitHubProviderError):
+            provider.call("issue_comments", {"since": "2026-11-01T00:00:00Z", "page": 1})
+
+    def test_issue_comment_cursor_cannot_select_arbitrary_api_path(self):
+        provider = github_provider({})
+        with self.assertRaises(GitHubProviderError):
+            provider.call("issue_comments", {"since": "https://attacker.example/path", "page": 1})
+        self.assertEqual(provider.transport.calls, [])
+
 
 class InventoryTests(unittest.TestCase):
     def _manifest(self, root: Path, *, source_path: Path, fields=None, kind="file", format_name="os_release") -> Path:
@@ -163,6 +190,56 @@ class InventoryTests(unittest.TestCase):
     def test_unapproved_probe_rejected(self):
         with self.assertRaises(inventory.InventoryError):
             inventory.collect("shell", manifest=Path("/does/not/exist"))
+
+    def test_model_directory_exposes_only_allowlisted_model_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            models = root / "models"
+            models.mkdir()
+            (models / "local.gguf").write_bytes(b"weight")
+            (models / "notes.txt").write_text("do not disclose")
+            (models / ".hidden.gguf").write_bytes(b"hidden")
+            (models / "link.gguf").symlink_to(models / "local.gguf")
+            manifest = root / "sources.toml"
+            manifest.write_text(
+                f'allowed_paths = [{json.dumps(str(models))}]\n'
+                f'[[sources.model_catalog]]\nid="ollama_files"\nkind="model_directory"\n'
+                f'path={json.dumps(str(models))}\nextensions=[".gguf"]\n', encoding="utf-8")
+            manifest.chmod(0o600)
+            result = inventory.collect("model_catalog", manifest=manifest, require_root_owner=False)
+            self.assertEqual(result["sources"][0]["models"], [{"name": "local.gguf", "size_bytes": 6}])
+            self.assertNotIn("do not disclose", json.dumps(result))
+
+    def test_runtime_adapters_use_fixed_local_hosts_and_allowlisted_fields(self):
+        ollama = {"models": [{"name": "qwen:8b", "size": 12, "digest": "abc", "details": {
+            "family": "qwen", "parameter_size": "8B", "quantization_level": "Q4_K_M", "license": "private"}}]}
+        comfy = {"system": {"os": "Linux", "python_version": "3.14", "secret": "drop"},
+                 "devices": [{"name": "Radeon", "type": "gpu", "vram_total": 64, "secret": "drop"}]}
+        with mock.patch.object(inventory, "_loopback_json", side_effect=[ollama, comfy]) as request:
+            models = inventory._ollama_models({"id": "ollama"})
+            status = inventory._comfyui_status({"id": "comfyui"})
+        self.assertEqual(request.call_args_list[0].args, (11434, "/api/tags"))
+        self.assertEqual(request.call_args_list[1].args, (8188, "/system_stats"))
+        self.assertEqual(models["models"][0]["parameter_size"], "8B")
+        self.assertNotIn("license", models["models"][0])
+        self.assertNotIn("secret", status["fields"])
+        self.assertNotIn("secret", status["devices"][0])
+
+    def test_runtime_endpoint_and_comfyui_categories_are_fixed(self):
+        with self.assertRaises(inventory.InventoryError):
+            inventory._loopback_json(11434, "/api/generate")
+        with self.assertRaises(inventory.InventoryError):
+            inventory._comfyui_models({"id": "comfyui", "categories": ["../etc"]})
+
+    def test_ollama_failure_is_partial_not_a_fabricated_empty_catalog(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            manifest = root / "sources.toml"
+            manifest.write_text('allowed_paths=[]\n[[sources.ollama_models]]\nid="ollama"\nkind="ollama_api"\n')
+            manifest.chmod(0o600)
+            with mock.patch.object(inventory, "_loopback_json", side_effect=inventory.SourceUnavailable("unavailable")):
+                with self.assertRaises(inventory.InventoryError):
+                    inventory.collect("ollama_models", manifest=manifest, require_root_owner=False)
 
 
 class MCPAdapterTests(unittest.TestCase):

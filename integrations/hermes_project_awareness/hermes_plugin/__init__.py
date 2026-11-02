@@ -90,12 +90,18 @@ def _operations(focus: str) -> list[tuple[str, str, dict[str, Any]]]:
         github.append(("github", "branches", {}))
     if focus in {"overall", "infrastructure", "technical_progress"}:
         inventory.append(("inventory", "host_summary", {}))
-    if focus == "infrastructure":
+        inventory.extend([
+            ("inventory", "gpu_inventory", {}),
+            ("inventory", "comfyui_status", {}),
+        ])
+    if focus in {"overall", "infrastructure"}:
         inventory.append(("inventory", "service_inventory", {}))
-    if focus == "models":
-        inventory.append(("inventory", "model_catalog", {}))
-    if focus == "overall":
-        inventory.append(("inventory", "model_catalog", {}))
+    if focus in {"overall", "models", "technical_progress"}:
+        inventory.extend([
+            ("inventory", "model_catalog", {}),
+            ("inventory", "ollama_models", {}),
+            ("inventory", "comfyui_models", {}),
+        ])
     return github + inventory
 
 

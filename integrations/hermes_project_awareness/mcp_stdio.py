@@ -20,6 +20,11 @@ PROVIDERS = {
             "tree": {"type": "object", "properties": {"ref": {"type": "string"}}, "required": ["ref"], "additionalProperties": False},
             "recent_commits": {"type": "object", "properties": {"branch": {"type": "string"}, "limit": {"type": "integer", "minimum": 1, "maximum": 30}}, "additionalProperties": False},
             "issues": {"type": "object", "properties": {"state": {"type": "string", "enum": ["open", "closed", "all"]}}, "additionalProperties": False},
+            "issue": {"type": "object", "properties": {"number": {"type": "integer", "minimum": 1}}, "required": ["number"], "additionalProperties": False},
+            "issue_comments": {"type": "object", "properties": {
+                "since": {"type": "string", "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ$"},
+                "page": {"type": "integer", "minimum": 1, "maximum": 1000}},
+                "required": ["since"], "additionalProperties": False},
             "pull_requests": {"type": "object", "properties": {"state": {"type": "string", "enum": ["open", "closed", "all"]}}, "additionalProperties": False},
             "pull_request_reviews": {"type": "object", "properties": {"number": {"type": "integer", "minimum": 1}}, "required": ["number"], "additionalProperties": False},
         },
@@ -28,7 +33,8 @@ PROVIDERS = {
         "socket": "/run/hermes-inventory/provider.sock",
         "operations": {
             name: {"type": "object", "properties": {}, "additionalProperties": False}
-            for name in ("host_summary", "model_catalog", "project_directories", "service_inventory")
+            for name in ("host_summary", "model_catalog", "project_directories", "service_inventory",
+                         "ollama_models", "comfyui_status", "comfyui_models", "gpu_inventory")
         },
     },
 }

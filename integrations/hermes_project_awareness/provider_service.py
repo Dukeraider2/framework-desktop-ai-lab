@@ -17,17 +17,18 @@ from .inventory import collect
 
 
 MAX_FRAME = 1_048_576
-GITHUB_OPS = frozenset({"repository_summary", "read_document", "branches", "recent_commits", "issues", "pull_requests", "pull_request_reviews", "tree"})
-INVENTORY_OPS = frozenset({"host_summary", "model_catalog", "project_directories", "service_inventory"})
+GITHUB_OPS = frozenset({"repository_summary", "read_document", "branches", "recent_commits", "issues", "issue", "issue_comments", "pull_requests", "pull_request_reviews", "tree"})
+INVENTORY_OPS = frozenset({"host_summary", "model_catalog", "project_directories", "service_inventory",
+                          "ollama_models", "comfyui_status", "comfyui_models", "gpu_inventory"})
 
 
 class ProviderServer(socketserver.ThreadingUnixStreamServer):
     daemon_threads = True
     allow_reuse_address = False
 
-    def __init__(self, socket_path: str, provider: str, client_uid: int):
+    def __init__(self, socket_path: str, provider: str, client_uids: set[int] | frozenset[int]):
         self.provider = provider
-        self.client_uid = client_uid
+        self.client_uids = frozenset(client_uids)
         if provider == "github":
             self.impl = GitHubProvider(GitHubSettings(
                 app_id=os.environ["HERMES_GITHUB_APP_ID"],
@@ -49,7 +50,7 @@ class _ProviderRequestHandler(socketserver.StreamRequestHandler):
         operation = "repository_summary" if server.provider == "github" else "host_summary"
         try:
             _pid, uid, _gid = struct.unpack("3i", self.request.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")))
-            if uid != server.client_uid:
+            if uid not in server.client_uids:
                 self._send({"error": "unauthorized local client"})
                 return
             raw = self.rfile.readline(MAX_FRAME + 1)
@@ -100,7 +101,7 @@ class _ProviderRequestHandler(socketserver.StreamRequestHandler):
         self.wfile.flush()
 
 
-def serve(provider: str, socket_path: str, client_uid: int) -> None:
+def serve(provider: str, socket_path: str, client_uids: set[int] | frozenset[int]) -> None:
     os.umask(0o117)
     if os.path.lexists(socket_path):
         raise RuntimeError("provider socket path already exists")
@@ -122,6 +123,13 @@ if __name__ == "__main__":
     service_provider = os.environ.get("HERMES_PROVIDER_ID", "")
     service_socket = os.environ.get("HERMES_PROVIDER_SOCKET", "")
     client_uid = os.environ.get("HERMES_PROVIDER_CLIENT_UID", "")
-    if service_provider not in {"github", "inventory"} or not service_socket or not client_uid.isdigit():
+    raw_uids = os.environ.get("HERMES_PROVIDER_CLIENT_UIDS", client_uid)
+    if service_provider not in {"github", "inventory"} or not service_socket or not raw_uids:
         raise SystemExit("provider service configuration is incomplete")
-    serve(service_provider, service_socket, int(client_uid))
+    try:
+        allowed_uids = {int(value) for value in raw_uids.split(",") if value.strip()}
+    except ValueError as exc:
+        raise SystemExit("provider client UID configuration is invalid") from exc
+    if not allowed_uids or any(value < 0 for value in allowed_uids):
+        raise SystemExit("provider client UID configuration is incomplete")
+    serve(service_provider, service_socket, allowed_uids)

@@ -21,6 +21,7 @@ API_HOST = "api.github.com"
 REPOSITORY = "Dukeraider2/framework-desktop-ai-lab"
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_ITEMS = 100
+MAX_COMMENT_PAGE_ITEMS = 20
 MAX_FILE_BYTES = 512 * 1024
 _VALID_REF = re.compile(r"^[A-Za-z0-9._/-]{1,128}$")
 
@@ -261,55 +262,30 @@ class GitHubProvider:
                                   for key in ("number", "title", "state", "state_reason", "html_url", "updated_at", "closed_at", "labels", "draft", "merged_at") if key in row})
             listing = "issues" if operation == "issues" else "pulls"
             return self._result(f"{operation}_{state}", safe_rows, partial=self._next_page(headers), source_url=f"https://github.com/{REPOSITORY}/{listing}?q=is%3A{state}")
-        if operation == "pull_request_reviews":
+        if operation == "issue":
             number = _bounded_int(args.get("number"), 1, 2**31 - 1)
-            data, headers = self._get(f"{self._base}/pulls/{number}/reviews?per_page={MAX_ITEMS}")
-            reviews = [{key: (_repository_url(row.get(key)) if key == "html_url" else row.get(key))
-                        for key in ("state", "submitted_at", "commit_id", "html_url") if key in row} for row in self._bounded_list(data)]
-            result = self._result(f"pull_request_reviews_{number}", reviews, partial=self._next_page(headers), source_url=f"https://github.com/{REPOSITORY}/pull/{number}/reviews")
-            result["subject"] = number
-            return result
-        if operation == "tree":
-            ref = args.get("ref", "")
-            if not isinstance(ref, str) or not _VALID_REF.fullmatch(ref):
-                raise GitHubProviderError("tree ref is invalid")
-            data, _ = self._get(f"{self._base}/git/trees/{quote(ref, safe='')}?recursive=1")
-            if data.get("truncated"):
-                raise GitHubProviderError("Git tree was truncated; refusing incomplete inventory")
-            rows = self._bounded_list(data.get("tree"))
-            return self._result(operation, [{"path": row.get("path"), "type": row.get("type"), "sha": row.get("sha")} for row in rows], source_url=f"https://github.com/{REPOSITORY}/tree/{quote(ref, safe='')}")
-        raise GitHubProviderError("unknown read-only GitHub operation")
-
-    @staticmethod
-    def _bounded_list(value: Any) -> list[dict[str, Any]]:
-        if not isinstance(value, list) or len(value) > MAX_ITEMS:
-            raise GitHubProviderError("GitHub list is malformed or exceeded the item limit")
-        if any(not isinstance(row, dict) for row in value):
-            raise GitHubProviderError("GitHub list contains malformed records")
-        return value
-
-    @staticmethod
-    def _next_page(headers: dict[str, str]) -> str | None:
-        link = headers.get("link", "")
-        if 'rel="next"' in link:
-            # Return a boolean marker only; the report never follows caller-selected URLs.
-            return "additional pages exist; result set is partial"
-        return None
-
-    @staticmethod
-    def _result(operation: str, records: list[dict[str, Any]], *, partial: str | None = None,
-                source_url: str | None = None) -> dict[str, Any]:
-        now = utc_now()
-        evidence = Evidence(evidence_id=f"github:{operation}:{now}", provider="github",
-                            kind=operation, observed_at=now,
-                            summary=f"GitHub returned {len(records)} record(s) for {operation}.",
-                            source_url=source_url or f"https://github.com/{REPOSITORY}", source_ref=operation)
-        return {"provider_id": "github", "schema_version": "1.0", "observed_at": now,
-                "status": "partial" if partial else "ok", "coverage": [operation],
-                "records": records, "partial_reason": partial, "evidence": [evidence.as_dict()]}
-
-
-def _bounded_int(value: Any, low: int, high: int) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or not low <= value <= high:
-        raise GitHubProviderError("numeric input is outside its permitted range")
-    return value
+            data, _ = self._get(f"{self._base}/issues/{number}")
+            if not isinstance(data, dict):
+                raise GitHubProviderError("repository issue record is invalid")
+            labels = data.get("labels", [])
+            if not isinstance(labels, list) or len(labels) > 100:
+                raise GitHubProviderError("repository issue labels are invalid")
+            safe_labels = [label.get("name")[:100] for label in labels
+                           if isinstance(label, dict) and isinstance(label.get("name"), str)]
+            record = {key: data.get(key) for key in ("number", "title", "state", "updated_at", "html_url") if key in data}
+            record["html_url"] = _repository_url(record.get("html_url"))
+            record["labels"] = safe_labels
+            record["is_pull_request"] = "pull_request" in data
+            return self._result(f"issue_{number}", [record], source_url=f"https://github.com/{REPOSITORY}/issues/{number}")
+        if operation == "issue_comments":
+            since = args.get("since")
+            page = _bounded_int(args.get("page", 1), 1, 1000)
+            if not isinstance(since, str) or not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", since):
+                raise GitHubProviderError("comment cursor must be a UTC timestamp")
+            data, headers = self._get(f"{self._base}/issues/comments?since={quote(since, safe='')}&sort=created&direction=asc&per_page={MAX_COMMENT_PAGE_ITEMS}&page={page}")
+            comments = self._bounded_list(data)
+            records = []
+            for row in comments:
+                user = row.get("user") if isinstance(row.get("user"), dict) else {}
+                issue_url = row.get("issue_url")
+                match = re.fullmatch(r"https://api\.github\.com/repos/Dukeraider2/framework-desk×_9òÚ$z{-®éÜj×µ}Ñ½Ñ…°ˆ¤°(€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€ ‰ÙÉ…µ}ÕÍ•‘}‰åÑ•Ìˆ°€‰µ•µ}¥¹™½}ÙÉ…µ}ÕÍ•ˆ¤¤è(€€€€€€€€€€€€€€€€€€€ÑÉäè(€€€€€€€€€€€€€€€€€€€€€€€É…Ü€ô€¡‘•Ù¥”€¼­•ä¤¹É•…‘}Ñ•áÐ¡•¹½‘¥¹œô‰…Í¥¤ˆ¤¹ÍÑÉ¥À ¤(€€€€€€€€€€€€€€€€€€€€€€€É½Ým™¥•±‘t€ô¥¹Ð¡É…Ü°€À¤¥˜­•ä¥¸ì‰Ù•¹‘½Èˆ°€‰‘•Ù¥”‰ô•±Í”¥¹Ð¡É…Ü¤(€€€€€€€€€€€€€€€€€€€•á•ÁÐ€¡=MÉÉ½È°Y…±Õ•ÉÉ½È¤è(€€€€€€€€€€€€€€€€€€€€€€€½¹Ñ¥¹Õ”(€€€€€€€€€€€€€€€‘•Ù¥•Ì¹…ÁÁ•¹¡É½Ü¤(€€€€€€€€€€€•á•ÁÐ=MÉÉ½Èè(€€€€€€€€€€€€€€€½¹Ñ¥¹Õ”(€€€€€€€½ÕÑÁÕÑl‰‘•Ù¥•Ì‰t€ô‘•Ù¥•Ì(€€€•á•ÁÐ=MÉÉ½Èè(€€€€€€€½ÕÑÁÕÑl‰‘•Ù¥•Ì‰t€ômt(€€€½ÕÑÁÕÑl‰ÁÉ½Ù¥‘•É}­™‘}Ù¥Í¥‰±”‰t€ôA…Ñ  ˆ½‘•Ø½­™ˆ¤¹•á¥ÍÑÌ ¤(€€€É•ÑÕÉ¸½ÕÑÁÕÐ(()‘•˜}‘¥Í­}ÕÍ…•}Í½ÕÉ”¡•¹ÑÉäè‘¥ÑmÍÑÈ°¹åt°…±±½Ý•è±¥ÍÑmÍÑÉt¤€´ø‘¥ÑmÍÑÈ°¹åtè(€€€É…Ý}Á…Ñ €ô•¹ÑÉä¹•Ð ‰Á…Ñ ˆ¤(€€€Í½ÕÉ•}Á…Ñ €ô}Í…™•}Á…Ñ ¡É…Ý}Á…Ñ °…±±½Ý•¤(€€€ÑÉäè(€€€€€€€¥˜¹½ÐÍ½ÕÉ•}Á…Ñ ¹¥Í}‘¥È ¤è(€€€€€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰ÍÑ½É…”Í½ÕÉ”¥Ì¹½Ð…¸…ÁÁÉ½Ù•‘¥É•Ñ½Éäˆ¤(€€€€€€€ÕÍ…”€ôÍ¡ÕÑ¥°¹‘¥Í­}ÕÍ…”¡Í½ÕÉ•}Á…Ñ ¤(€€€•á•ÁÐ¥±•9½Ñ½Õ¹‘ÉÉ½È…Ì•áŒè(€€€€€€€É…¥Í”M½ÕÉ•U¹…Ù…¥±…‰±” ‰…ÁÁÉ½Ù•ÍÑ½É…”Á…Ñ ¥Ìµ¥ÍÍ¥¹œˆ¤™É½´•áŒ(€€€•á•ÁÐ=MÉÉ½È…Ì•áŒè(€€€€€€€É…¥Í”M½ÕÉ•U¹…Ù…¥±…‰±” ‰…ÁÁÉ½Ù•ÍÑ½É…”Á…Ñ ½Õ±¹½Ð‰”¥¹ÍÁ•Ñ•ˆ¤™É½´•áŒ(€€€É•ÑÕÉ¸ì‰Í½ÕÉ•}¥ˆè}Í½ÕÉ•}¥¡•¹ÑÉä¤°€‰™¥•±‘Ìˆèì(€€€€€€€€‰Ñ½Ñ…±}‰åÑ•ÌˆèÕÍ…”¹Ñ½Ñ…°°€‰ÕÍ•‘}‰åÑ•ÌˆèÕÍ…”¹ÕÍ•°€‰™É••}‰åÑ•ÌˆèÕÍ…”¹™É••õô(()‘•˜}Í½ÕÉ•}¥¡•¹ÑÉäè‘¥ÑmÍÑÈ°¹åt¤€´øÍÑÈè(€€€Ù…±Õ”€ô•¹ÑÉä¹•Ð ‰¥ˆ¤(€€€¥˜¹½Ð¥Í¥¹ÍÑ…¹”¡Ù…±Õ”°ÍÑÈ¤½È¹½ÐÉ”¹™Õ±±µ…Ñ ¡È‰m„µéum„µèÀ´å|µuìÀ°ØÍôˆ°Ù…±Õ”¤è(€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰µ…¹¥™•ÍÐÍ½ÕÉ”¹••‘Ì„ÍÑ…‰±”°¹½¸µÁ…Ñ Í½ÕÉ”¥ˆ¤(€€€É•ÑÕÉ¸Ù…±Õ”(()‘•˜½±±•Ð¡ÁÉ½‰”èÍÑÈ°€¨°µ…¹¥™•ÍÐèA…Ñ €ô59%MP°½‰Í•ÉÙ•‘}…ÐèÍÑÈð9½¹”€ô9½¹”°(€€€€€€€€€€€É•ÅÕ¥É•}É½½Ñ}½Ý¹•Èè‰½½°€ôQÉÕ”¤€´ø‘¥ÑmÍÑÈ°¹åtè(€€€€ˆˆ‰I•ÑÕÉ¸„‰½Õ¹‘•Í¹…ÁÍ¡½ÐìÁ…Ñ …ÉÕµ•¹ÑÌ…É”¹•Ù•È…•ÁÑ•™É½´Ñ¡”…±±•È¸ˆˆˆ(€€€¥˜ÁÉ½‰”¹½Ð¥¸}%a}AI=	Lè(€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰Õ¹­¹½Ý¸¥¹Ù•¹Ñ½Éä½Á•É…Ñ¥½¸ˆ¤(€€€½¹™¥œ€ô}É•…‘}µ…¹¥™•ÍÐ¡µ…¹¥™•ÍÐ°É•ÅÕ¥É•}É½½Ñ}½Ý¹•ÈõÉ•ÅÕ¥É•}É½½Ñ}½Ý¹•È¤(€€€…±±½Ý•‘}Á…Ñ¡Ì€ô½¹™¥œ¹•Ð ‰…±±½Ý•‘}Á…Ñ¡Ìˆ°mt¤(€€€¥˜¹½Ð¥Í¥¹ÍÑ…¹”¡…±±½Ý•‘}Á…Ñ¡Ì°±¥ÍÐ¤½È…¹ä¡¹½Ð¥Í¥¹ÍÑ…¹”¡¥Ñ•´°ÍÑÈ¤™½È¥Ñ•´¥¸…±±½Ý•‘}Á…Ñ¡Ì¤è(€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰µ…¹¥™•ÍÐÁ…Ñ …±±½Ý±¥ÍÐ¥Ìµ…±™½Éµ•ˆ¤(€€€É•½É‘Ì€ô}Í½ÕÉ•}É•½É‘Ì¡½¹™¥œ°ÁÉ½‰”¤(€€€¥˜¹½ÐÉ•½É‘Ìè(€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰¹¼…ÁÁÉ½Ù•Í½ÕÉ•Ì…É”½¹™¥ÕÉ•™½ÈÑ¡¥Ì¥¹Ù•¹Ñ½Éä½Á•É…Ñ¥½¸ˆ¤(€€€Í½ÕÉ•Ì€ômt(€€€µ¥ÍÍ¥¹œ€ômt(€€€™½È•¹ÑÉä¥¸É•½É‘Ìè(€€€€€€€¥˜¹½Ð¥Í¥¹ÍÑ…¹”¡•¹ÑÉä°‘¥Ð¤½È•¹ÑÉä¹•Ð ‰­¥¹ˆ¤¹½Ð¥¸ì(€€€€€€€€€€€€‰™¥±”ˆ°€‰‘¥Í­}ÕÍ…”ˆ°€‰µ½‘•±}‘¥É•Ñ½Éäˆ°€‰½±±…µ…}…Á¤ˆ°€‰½µ™åÕ¥}ÍåÍÑ•´ˆ°(€€€€€€€€€€€€‰½µ™åÕ¥}µ½‘•±Ìˆ°€‰ÁÕ}ÍåÍ™Ìˆ°(€€€€€€€ôè(€€€€€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰µ…¹¥™•ÍÐÍ½ÕÉ”•¹ÑÉä¥Ìµ…±™½Éµ•ˆ¤(€€€€€€€ÑÉäè(€€€€€€€€€€€­¥¹€ô•¹ÑÉål‰­¥¹‰t(€€€€€€€€€€€¥˜­¥¹€ôô€‰™¥±”ˆè(€€€€€€€€€€€€€€€É½Ü€ô}™¥±•}Í½ÕÉ”¡•¹ÑÉä°…±±½Ý•‘}Á…Ñ¡Ì¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰‘¥Í­}ÕÍ…”ˆè(€€€€€€€€€€€€€€€É½Ü€ô}‘¥Í­}ÕÍ…•}Í½ÕÉ”¡•¹ÑÉä°…±±½Ý•‘}Á…Ñ¡Ì¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰µ½‘•±}‘¥É•Ñ½Éäˆè(€€€€€€€€€€€€€€€É½Ü€ô}µ½‘•±}‘¥É•Ñ½Éå}Í½ÕÉ”¡•¹ÑÉä°…±±½Ý•‘}Á…Ñ¡Ì¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰½±±…µ…}…Á¤ˆ…¹ÁÉ½‰”€ôô€‰½±±…µ…}µ½‘•±Ìˆè(€€€€€€€€€€€€€€€É½Ü€ô}½±±…µ…}µ½‘•±Ì¡•¹ÑÉä¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰½µ™åÕ¥}ÍåÍÑ•´ˆ…¹ÁÉ½‰”€ôô€‰½µ™åÕ¥}ÍÑ…ÑÕÌˆè(€€€€€€€€€€€€€€€É½Ü€ô}½µ™åÕ¥}ÍÑ…ÑÕÌ¡•¹ÑÉä¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰½µ™åÕ¥}µ½‘•±Ìˆ…¹ÁÉ½‰”€ôô€‰½µ™åÕ¥}µ½‘•±Ìˆè(€€€€€€€€€€€€€€€É½Ü€ô}½µ™åÕ¥}µ½‘•±Ì¡•¹ÑÉä¤(€€€€€€€€€€€•±¥˜­¥¹€ôô€‰ÁÕ}ÍåÍ™Ìˆ…¹ÁÉ½‰”€ôô€‰ÁÕ}¥¹Ù•¹Ñ½Éäˆè(€€€€€€€€€€€€€€€É½Ü€ô}ÁÕ}¥¹Ù•¹Ñ½Éä¡•¹ÑÉä¤(€€€€€€€€€€€•±Í”è(€€€€€€€€€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰Í½ÕÉ”­¥¹¥Ì¹½ÐÙ…±¥™½ÈÑ¡¥Ì™¥á•½Á•É…Ñ¥½¸ˆ¤(€€€€€€€€€€€Í½ÕÉ•Ì¹…ÁÁ•¹¡ì‰ÍÑ…ÑÕÌˆè€‰½¬ˆ°€¨©É½Ýô¤(€€€€€€€•á•ÁÐM½ÕÉ•U¹…Ù…¥±…‰±”è(€€€€€€€€€€€µ¥ÍÍ¥¹œ¹…ÁÁ•¹¡}Í½ÕÉ•}¥¡•¹ÑÉä¤¤(€€€Ñ¥µ•ÍÑ…µÀ€ô½‰Í•ÉÙ•‘}…Ð½ÈÕÑ}¹½Ü ¤(€€€•Ù¥‘•¹”€ôÙ¥‘•¹” (€€€€€€€•Ù¥‘•¹•}¥õ˜‰¥¹Ù•¹Ñ½ÉäéíÁÉ½‰•ôéíÑ¥µ•ÍÑ…µÁôˆ°ÁÉ½Ù¥‘•Èô‰™É…µ•Ý½É­…¤Å}¥¹Ù•¹Ñ½Éäˆ°(€€€€€€€­¥¹õÁÉ½‰”°½‰Í•ÉÙ•‘}…ÐõÑ¥µ•ÍÑ…µÀ°(€€€€€€€ÍÕµµ…Éäõ˜‰½±±•Ñ•í±•¸¡Í½ÕÉ•Ì¥ô…ÁÁÉ½Ù•Í½ÕÉ”¡Ì¤ìí±•¸¡µ¥ÍÍ¥¹œ¥ôÕ¹…Ù…¥±…‰±”™½ÈíÁÉ½‰•ô¸ˆ°(€€€€€€€Í½ÕÉ•}É•˜ô‰±½…°¡½ÍÐÍ¹…ÁÍ¡½Ðˆ°(€€€€¤(€€€¥˜¹½ÐÍ½ÕÉ•Ìè(€€€€€€€É…¥Í”%¹Ù•¹Ñ½ÉåÉÉ½È ‰¹¼…ÁÁÉ½Ù•¥¹Ù•¹Ñ½ÉäÍ½ÕÉ”Ý…Ì…Ù…¥±…‰±”ˆ¤(€€€É•ÑÕÉ¸ì‰ÁÉ½Ù¥‘•É}¥ˆè€‰™É…µ•Ý½É­…¤Å}¥¹Ù•¹Ñ½Éäˆ°€‰Í¡•µ…}Ù•ÉÍ¥½¸ˆè€ˆÄ¸Àˆ°(€€€€€€€€€€€€‰½‰Í•ÉÙ•‘}…ÐˆèÑ¥µ•ÍÑ…µÀ°€‰ÍÑ…ÑÕÌˆè€‰Á…ÉÑ¥…°ˆ¥˜µ¥ÍÍ¥¹œ•±Í”€‰½¬ˆ°€‰½Ù•É…”ˆèmÁÉ½‰•t°(€€€€€€€€€€€€‰Í½ÕÉ•ÌˆèÍ½ÕÉ•Ì°€‰Õ¹…Ù…¥±…‰±•}Í½ÕÉ•Ìˆèµ¥ÍÍ¥¹œ°€‰•Ù¥‘•¹”ˆèm•Ù¥‘•¹”¹…Í}‘¥Ð ¥uô(
