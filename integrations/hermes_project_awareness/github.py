@@ -31,9 +31,10 @@ def _repository_url(value: Any) -> str | None:
         return None
     try:
         parsed = urlsplit(value)
+        repo_path = f"/{REPOSITORY}"
         if (parsed.scheme != "https" or parsed.hostname != "github.com" or parsed.port not in {None, 443}
                 or parsed.username or parsed.password or parsed.query or parsed.fragment
-                or not parsed.path.startswith(f"/{REPOSITORY}")):
+                or not (parsed.path == repo_path or parsed.path.startswith(repo_path + "/"))):
             return None
     except ValueError:
         return None
