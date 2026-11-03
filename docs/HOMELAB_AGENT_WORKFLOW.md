@@ -4,7 +4,7 @@
 
 ## Goal
 
-Use Hermes and the shared LLM Inference Gateway to coordinate a controlled software-development pipeline. Git is the shared source of truth. Every agent Hermes provisions runs in a Podman container by default. Hermes defines each container's environment and minimum task-required permissions; Podman enforces the container boundary. The Proxmox monitoring/deployment integration is a separate planning track.
+Use the approved organization and reporting structure in [Organization and Reporting Structure](engineering/AGENT_ORGANIZATION.md) to coordinate a controlled software-development pipeline. Git is the shared source of truth. The shared LLM Inference Gateway is a separate service. The Proxmox monitoring/deployment integration is a separate planning track.
 
 ## Workflow
 
