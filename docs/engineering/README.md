@@ -7,7 +7,7 @@ This directory defines the operating rules for the AI engineering and creative p
 - [Engineering Constitution](CONSTITUTION.md)
 - [Documentation-First Technical Execution](DOCUMENTATION_FIRST_EXECUTION.md)
 - [Model and Integration Registry Governance](MODEL_AND_INTEGRATION_REGISTRY.md)
-- [Agent Organization](AGENT_ORGANIZATION.md)
+- [Organization and Reporting Structure — sole source of truth](AGENT_ORGANIZATION.md)
 - [Access and Governance](ACCESS_GOVERNANCE.md)
 - [Development Workflow](DEVELOPMENT_WORKFLOW.md)
 - [Resource Efficiency](RESOURCE_EFFICIENCY.md)
