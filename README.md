@@ -97,7 +97,7 @@ The ComfyUI record distinguishes successful server startup and model discovery f
 <details>
 <summary><strong>Hermes agent execution and LLM inference gateway</strong></summary>
 
-Hermes is the task orchestrator and first-line access authority. Every agent it provisions runs in a Podman container by default. Hermes defines each agent's environment and minimum task-required access; Podman enforces the container boundary. The LLM Inference Gateway is independent shared infrastructure used by Hermes, OpenCode, and other authorized clients. Host-process Hermes inference was validated on 2026-11-03; Podman agent provisioning, container-to-gateway connectivity, and gateway authentication/authorization remain implementation work.
+The organization chart and deployment placement are maintained in one authoritative document: [Organization and Reporting Structure](docs/engineering/AGENT_ORGANIZATION.md). The LLM Inference Gateway is independent shared infrastructure; see its technical specification for validation status and integration requirements.
 
 | Architecture | What it covers |
 | --- | --- |
