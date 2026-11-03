@@ -4,7 +4,7 @@
 
 ## Authority
 
-Hermes is the first-line access authority for ordinary task-scoped permissions. For every agent it provisions, Hermes defines the Podman container environment and grants the minimum access required by that task. The user retains final authority over policy exceptions, unresolved access conflicts, and high-risk actions.
+Organizational authority and escalation paths are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). This document specifies access-request handling only.
 
 ## Per-task Podman environment and permissions
 
