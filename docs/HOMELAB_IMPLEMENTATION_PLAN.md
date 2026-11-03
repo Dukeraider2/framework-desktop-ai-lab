@@ -63,7 +63,7 @@
 
 ## Phase 7 — Implement the development workflow
 
-1. Use the [Hermes-Managed Podman Agent Runtime](engineering/HERMES_PODMAN_AGENT_RUNTIME.md) as the required execution model for Hermes-created coding, review, and test agents. Hermes defines each agent's task-specific environment and minimum permissions; Podman enforces the container boundary.
+1. Follow the authoritative [Organization and Reporting Structure](../engineering/AGENT_ORGANIZATION.md). Apply the technical worker-container requirements in [Hermes-Managed Podman Agent Runtime](../engineering/HERMES_PODMAN_AGENT_RUNTIME.md).
 2. Use separate Podman containers, dedicated workspaces, and Git branches or pull requests so agents do not share an uncontrolled writable directory.
 3. Separate code generation, independent review, and test execution into distinct task-scoped agents/containers where practical.
 4. Automate unit and regression tests with explicit pass/fail output.
