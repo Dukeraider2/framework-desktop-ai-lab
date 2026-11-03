@@ -12,6 +12,8 @@ This directory defines the operating rules for the AI engineering and creative p
 - [Development Workflow](DEVELOPMENT_WORKFLOW.md)
 - [Resource Efficiency](RESOURCE_EFFICIENCY.md)
 - [Podman-First Container Policy](PODMAN_FIRST_POLICY.md)
+- [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md)
+- [LLM Inference Gateway Architecture](INFERENCE_GATEWAY_ARCHITECTURE.md)
 
 ## Authority and change control
 
