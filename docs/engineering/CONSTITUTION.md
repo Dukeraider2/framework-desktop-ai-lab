@@ -6,7 +6,7 @@
 
 Build and operate a locally hosted AI engineering and creative production organization for systems engineering, software and application development, feature integrations, game development, authorized reverse engineering, image and video production, content, publishing, and social-media operations.
 
-The user is the final authority for unresolved high-risk decisions and production approvals. Quill provides technical direction in conversation. Hermes is the project and operations manager and first-line access authority. Hermes-created task agents execute in Podman containers with per-task environments and minimum required access. Specialized agents perform bounded work.
+The organization chart, reporting lines, communication path, and deployment placement are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). This constitution does not restate or redefine them.
 
 ## Core principles
 
