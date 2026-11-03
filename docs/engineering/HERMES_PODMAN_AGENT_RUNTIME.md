@@ -11,18 +11,15 @@ The organizational reporting and deployment placement are defined exclusively in
 
 Podman enforces the container configuration that Hermes requests. Host-level safeguards and the user's approval requirements remain in force; Hermes must not treat its orchestration role as authority to bypass them.
 
-## 2. Roles and authority
+## 2. Container enforcement boundary
 
-| Component | Responsibility |
-| --- | --- |
-| User | Owns the lab, sets standing policy, and decides unresolved high-risk exceptions and production-impacting actions. |
-| Hermes | Decomposes tasks, selects agent capabilities, defines each task's runtime/environment/access specification, provisions and supervises agents through Podman, records grants/denials, and escalates unresolved risks. |
-| Provisioning interface | Converts Hermes' approved task specification into a Podman container configuration. It should be narrow, auditable, and not expose unrestricted host control to agents. |
-| Podman | Enforces container isolation, namespaces, mounts, devices, capabilities, resource limits, network configuration, and lifecycle. |
-| Agent | Performs only its assigned task within the granted container environment. It cannot grant itself additional access. |
-| Independent reviewer | Reviews implementation, security, test evidence, and whether the requested access was proportionate. It does not approve its own implementation. |
+This section defines technical responsibilities inside the worker-container provisioning path. Organizational roles, reporting lines, communication, and deployment placement are defined only in [Organization and Reporting Structure](AGENT_ORGANIZATION.md).
 
-Hermes is the policy decision-maker for ordinary task-scoped access within the standing policy. This design does **not** require a second autonomous policy authority that competes with Hermes. A narrow preflight validator may reject malformed or policy-violating container specifications, but it must enforce the owner's standing rules rather than silently redefine task permissions.
+- The provisioning interface converts an approved task specification into a Podman container configuration. It must be narrow and auditable.
+- Podman enforces container isolation, namespaces, mounts, devices, capabilities, resource limits, network configuration, and lifecycle.
+- A worker agent operates only inside its granted container environment and cannot grant itself additional access.
+- An independent reviewer evaluates implementation, security, test evidence, and whether the requested container access was proportionate.
+- A narrow preflight validator may reject malformed or policy-violating container specifications. It enforces the owner's standing rules and is not a competing policy authority.
 
 ## 3. Per-task execution specification
 
