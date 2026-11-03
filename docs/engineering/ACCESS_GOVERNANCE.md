@@ -4,7 +4,13 @@
 
 ## Authority
 
-Hermes is the proposed first-line access manager. The user retains final authority over unresolved access conflicts and high-risk exceptions.
+Organizational authority and escalation paths are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). This document specifies access-request handling only.
+
+## Per-task Podman environment and permissions
+
+Before creating an agent container, Hermes must define a task-scoped execution specification: task/issue, agent capability, base image, runtime and environment, workspace mounts, network destinations, device access, Linux capabilities, CPU/memory/process/storage/time limits, secret references, permitted APIs, lifetime, and cleanup. Access is deny-by-default where practical and must be justified by the task. Read-only mounts are preferred; writable mounts are limited to the task workspace. GPU/TPU/device access, credentials, and network egress are granted only when required.
+
+Podman is the enforcement mechanism for container isolation and the configuration Hermes selects. Agents cannot grant themselves permissions or control the host Podman service. Do not mount the host Podman socket, broad home directories, host root, or general credential stores into an agent by default. Hermes may use a narrow provisioning interface; any validator enforces the user's standing policy and is not a competing permission authority.
 
 ## Access request requirements
 

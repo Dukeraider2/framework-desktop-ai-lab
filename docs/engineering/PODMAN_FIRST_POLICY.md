@@ -6,6 +6,12 @@
 
 Podman is the standard container runtime for this lab and its projects. Prefer rootless containers where practical, with systemd integration such as Quadlet where appropriate. Use compatible image formats and build tooling based on verified support.
 
+## Hermes-created agent workloads
+
+Worker-agent deployment placement is defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). This policy specifies Podman runtime requirements for containerized workloads.
+
+Use rootless, non-privileged containers by default. Drop unnecessary capabilities, avoid host namespaces and broad host mounts, do not expose the Podman socket to agents, and provide only task-scoped writable storage, network access, devices, and secrets. An agent cannot self-escalate. A VM is an exception only when a documented task requirement cannot be met safely by Podman and the user approves it. See [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
+
 ## Docker requirement response
 
 If a project, upstream application, installer, Compose file, CI workflow, or dependency claims Docker is required:

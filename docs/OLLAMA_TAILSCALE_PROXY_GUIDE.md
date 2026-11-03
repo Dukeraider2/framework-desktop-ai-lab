@@ -21,6 +21,14 @@ Request path:
 
 The proxy listens only on `127.0.0.1:11435`. Do not publish this port on your LAN or expose Ollama's port to the internet. Do not enable Tailscale Funnel. The proxy does not add authentication or restrict API paths; tailnet access policy is therefore important.
 
+## Relationship to Hermes-managed agents
+
+This guide documents the NGINX-to-Ollama proxy deployment and authorized tailnet client access. The LLM Inference Gateway is independent shared infrastructure; Hermes is a client, not its owner. Hermes host-process inference through the gateway was validated on 2026-11-03.
+
+Hermes-created task agents are intended to run in Podman containers and use the LLM Inference Gateway rather than connecting directly to Ollama. Do not copy the host-loopback URL into a separate agent container: 127.0.0.1 inside that container refers to the container itself. A restricted container-to-gateway network path and suitable authentication/authorization must be designed and tested before enabling agent access. The current proxy does not provide per-agent authentication or authorization. Do not expose Ollama's backend port to agent networks as a workaround.
+
+See [Hermes-Managed Podman Agent Runtime](engineering/HERMES_PODMAN_AGENT_RUNTIME.md) and [LLM Inference Gateway Architecture](engineering/INFERENCE_GATEWAY_ARCHITECTURE.md) for the current architecture and implementation gates.
+
 ## Before you start
 
 You need:

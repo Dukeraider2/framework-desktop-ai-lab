@@ -63,14 +63,14 @@
 
 ## Phase 7 — Implement the development workflow
 
-1. Create isolated development environments for coding and tests.
-2. Use Git branches or pull requests so agents do not share an uncontrolled write directory.
-3. Separate code generation, independent review, and test execution where practical.
+1. Follow the authoritative [Organization and Reporting Structure](../engineering/AGENT_ORGANIZATION.md). Apply the technical worker-container requirements in [Hermes-Managed Podman Agent Runtime](../engineering/HERMES_PODMAN_AGENT_RUNTIME.md).
+2. Use separate Podman containers, dedicated workspaces, and Git branches or pull requests so agents do not share an uncontrolled writable directory.
+3. Separate code generation, independent review, and test execution into distinct task-scoped agents/containers where practical.
 4. Automate unit and regression tests with explicit pass/fail output.
 5. Send failures and review findings back for bounded revision attempts.
 6. Require human approval before merging or deploying.
 
-**Exit criteria:** A task can produce a reviewed pull request with test evidence.
+**Exit criteria:** A task can produce a reviewed pull request with test evidence, and each Hermes-created agent's Podman configuration and granted access can be inspected and audited.
 
 ## Phase 8 — Resource-aware scheduling and hardening
 

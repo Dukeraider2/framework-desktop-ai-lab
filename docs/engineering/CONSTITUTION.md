@@ -6,14 +6,14 @@
 
 Build and operate a locally hosted AI engineering and creative production organization for systems engineering, software and application development, feature integrations, game development, authorized reverse engineering, image and video production, content, publishing, and social-media operations.
 
-The user is the final authority for unresolved high-risk decisions and production approvals. Quill provides technical direction in conversation. Hermes is the proposed project and operations manager. Specialized agents perform bounded work.
+The organization chart, reporting lines, communication path, and deployment placement are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). This constitution does not restate or redefine them.
 
 ## Core principles
 
 1. Evidence before assumptions. Verify hardware, software, APIs, package names, compatibility, and configuration against authoritative sources before recommending changes.
 2. Specification before implementation. Significant work begins with explicit requirements, acceptance criteria, and an attached core reference package.
 3. Independent verification. Implementers do not approve their own work. Review and QA are separate responsibilities.
-4. Podman-first deployment. Podman is the mandatory default container runtime. A Docker requirement triggers dependency review, porting, rebuild, and validation. Do not install Docker as a workaround without explicit user approval.
+4. Podman-first deployment. Podman is the mandatory default runtime for containerized workloads. Worker-agent placement is defined in [Organization and Reporting Structure](AGENT_ORGANIZATION.md); technical isolation requirements are defined in [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md). A Docker requirement triggers dependency review, porting, rebuild, and validation. Do not install Docker as a workaround without explicit user approval.
 5. Resource efficiency is a production requirement. Measure the impact of changes and avoid unnecessary runtime, dependency, process, and service overhead.
 6. Python-first where appropriate. Prefer lean Python for orchestration, automation, APIs, and pipeline glue when fit for the workload. Select other languages based on measured performance, correctness, maintainability, and dependency impact, not fashion.
 7. Hardware-aware optimization. Investigate supported CPU instruction sets, SIMD/vectorization, GPU and other accelerators, parallelism, cache behavior, and optimized libraries when they offer measured benefit. Detect capabilities at runtime and provide safe fallbacks.

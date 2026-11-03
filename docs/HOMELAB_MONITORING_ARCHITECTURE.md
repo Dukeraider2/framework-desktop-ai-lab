@@ -1,7 +1,7 @@
 # Proxmox Lab Monitoring and Agent Architecture
 
 **Status:** Proposed design; not yet deployed or verified.
-**Scope:** Six CSI nodes running Proxmox, an independent physical monitoring computer, the existing Ubuntu AI PC/model proxy, and a future Hermes multi-agent workflow.
+**Scope:** Six CSI nodes running Proxmox, an independent physical monitoring computer, the existing Ubuntu AI PC/LLM Inference Gateway, and a future Hermes-managed multi-agent workflow. Hermes host-process inference through the LLM gateway has been validated; Podman agent provisioning and Proxmox monitoring integration remain future work.
 
 ## Purpose
 
@@ -42,7 +42,7 @@ The monitoring computer is a separate physical machine and does not need to join
 - **Prometheus (optional):** Time-series metric collection and storage.
 - **Grafana (optional):** Dashboarding and visualizing time-series data.
 - **MCP (optional, later):** Narrow, explicitly authorized tools through which Hermes can query selected monitoring information. MCP is an access interface, not a metrics database.
-- **Hermes:** Coordinates coding, independent review, tests, and later resource-aware scheduling.
+- **Hermes:** Coordinates coding, independent review, tests, and later resource-aware scheduling. Hermes-created task agents execute in Podman containers under the per-task least-privilege model defined in [Hermes-Managed Podman Agent Runtime](engineering/HERMES_PODMAN_AGENT_RUNTIME.md).
 - **Git:** Versioned source of truth for code, branches, tests, and decisions.
 
 Proxmox's API alone may be enough for an initial node/workload status page. For longer-term graphs, richer host/network metrics, or application health, additional collection may be needed. Proxmox reporting a VM as running does not prove the application inside it is healthy.

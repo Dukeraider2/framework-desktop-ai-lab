@@ -21,6 +21,10 @@ Core references must be accessible to the implementer as part of the task packag
 
 Stage 1 output: approved task definition and reference package. No implementation begins until scope and references are sufficiently clear.
 
+## Agent execution environment
+
+Agent reporting and deployment placement are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). Technical worker-container requirements are specified in [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
+
 ## Stage 2 — Implementation and evidence report
 
 **Responsible:** Assigned implementation agent.

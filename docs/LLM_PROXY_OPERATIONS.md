@@ -1,10 +1,10 @@
 # LLM Proxy: Design and Operations
 
-> **Status: Partially implemented.** The rootless NGINX proxy is running as a Quadlet-generated user service and local API/inference tests pass. Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale end-to-end access remain unverified. Do not treat the deployment as complete until those checks pass.
+> **Status: Partially implemented.** The rootless NGINX proxy is running as a Quadlet-generated user service. Local API/inference tests and a host-process Hermes inference request through the proxy passed on 2026-11-03. Boot behavior after a real reboot, desktop shortcut double-click behavior, Android/Tailscale end-to-end access, and container-agent connectivity remain unverified. Do not treat the deployment as complete until those checks pass.
 
 ## Scope
 
-This phase covers only a small reverse proxy in front of Ollama. MCP and Hermes integrations are out of scope.
+The original proxy deployment phase covered only a small reverse proxy in front of Ollama; the statement that Hermes integration is out of scope is superseded by the 2026-11-03 host-process validation. Hermes is now a client of this independent gateway. Hermes-created task agents are intended to run in Podman containers and consume inference through this gateway, but their container-to-gateway network path and per-agent authorization are not yet implemented or validated. See [LLM Inference Gateway Architecture](engineering/INFERENCE_GATEWAY_ARCHITECTURE.md) and [Hermes-Managed Podman Agent Runtime](engineering/HERMES_PODMAN_AGENT_RUNTIME.md).
 
 The proxy rewrites the upstream HTTP `Host` header. During diagnosis, Ollama returned `403 Forbidden` for requests forwarded with the tailnet HTTPS hostname, but returned `200 OK` when the upstream request used `Host: localhost:11434`. The persistent proxy is now the Tailscale Serve backend, and same-host HTTPS `/api/tags` was verified to return `200 OK` without a manual Host override. Android client access and reboot startup still need verification.
 
