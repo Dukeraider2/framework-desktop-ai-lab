@@ -6,7 +6,11 @@
 
 - **User:** Owner and final decision-maker; resolves escalated access risks and approves production-impacting actions.
 - **Quill / ChatGPT:** Technical director and planning partner for requirements, architecture, and review direction. It is not assumed to have direct access to the local host.
-- **Hermes:** Proposed project and operations manager. Receives tasks, decomposes work, assigns agents, coordinates dependencies, manages access requests, tracks progress and time, and escalates unresolved risks.
+- **Hermes:** Project and operations manager and first-line access authority. Receives tasks, decomposes work, assigns agents, coordinates dependencies, defines each agent's Podman container environment and minimum task-required access, manages access requests, tracks progress and time, supervises agent lifecycle, and escalates unresolved risks.
+
+## Agent execution model
+
+Every agent that Hermes provisions for task execution runs in a Podman container by default. Hermes specifies the per-task image/runtime, environment, workspace mounts, network access, devices, credentials, resource limits, and lifecycle. Podman enforces the declared container boundary. Agents do not receive broad host access or the Podman control socket by default. A VM is an exception only for a documented task requirement that containers cannot meet and requires user approval. See [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
 
 ## Specialist capabilities
 
