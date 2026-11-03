@@ -23,7 +23,7 @@ Stage 1 output: approved task definition and reference package. No implementatio
 
 ## Agent execution environment
 
-Hermes-created implementation, review, and test agents run in Podman containers by default. Hermes defines a separate task-scoped environment and minimum permissions for each agent. The specification includes workspace, mounts, network, devices, credentials, resource limits, and lifecycle. Podman enforces the container boundary. Do not interpret the phrase 'isolated workspace' as permission to choose an arbitrary VM/container runtime. A VM requires a documented exception and user approval. See [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
+Agent reporting and deployment placement are defined exclusively in [Organization and Reporting Structure](AGENT_ORGANIZATION.md). Technical worker-container requirements are specified in [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
 
 ## Stage 2 — Implementation and evidence report
 
