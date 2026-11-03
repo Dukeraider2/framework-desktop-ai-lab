@@ -1,18 +1,18 @@
 # Proposed Multi-Agent Development Workflow
 
-**Status:** Concept only; agent roles and integration have not yet been deployed or validated.
+**Status:** Proposed workflow; Hermes host inference integration was validated on 2026-11-03. Hermes-managed Podman agent provisioning and the Proxmox workflow remain to be implemented and validated.
 
 ## Goal
 
-Use Hermes and the existing local model proxy to coordinate a controlled software-development pipeline on the Proxmox lab. Git is the shared source of truth. Agent environments should be isolated, and important changes should remain reviewable by a human.
+Use Hermes and the shared LLM Inference Gateway to coordinate a controlled software-development pipeline. Git is the shared source of truth. Every agent Hermes provisions runs in a Podman container by default. Hermes defines each container's environment and minimum task-required permissions; Podman enforces the container boundary. The Proxmox monitoring/deployment integration is a separate planning track.
 
 ## Workflow
 
 1. **Task intake:** A human supplies a task and acceptance criteria.
 2. **Planning:** A coordinator breaks the task into bounded implementation and test steps.
-3. **Implementation:** A coding agent works in an isolated VM/container and on a dedicated Git branch.
+3. **Implementation:** Hermes provisions a coding agent in a rootless Podman container with a task-specific environment, dedicated workspace, minimum required mounts/network/devices/credentials, resource limits, and a dedicated Git branch. A VM is an approved exception only when the task cannot be met safely by Podman.
 4. **Independent review:** A reviewer examines the diff against requirements, correctness, security, and maintainability. The reviewer should not silently rewrite the implementation.
-5. **Testing:** A test runner executes the defined test suite in an isolated environment.
+5. **Testing:** A test agent or runner executes the defined test suite in a separately scoped Podman container/workspace.
 6. **Revision:** Test failures and review findings are returned to the coding agent for a bounded number of retries.
 7. **Pull request:** The branch, diff, test output, and review findings are presented for human review.
 8. **Merge approval:** A human decides whether to merge.
@@ -26,7 +26,8 @@ Scheduling decisions must account for stale or missing metrics. When monitoring 
 
 ## Isolation and safety
 
-- Use separate branches and workspaces; do not let multiple agents edit the same working tree concurrently.
+- Use separate Podman containers, branches, and workspaces; do not let multiple agents edit the same working tree concurrently.
+- Hermes defines per-agent environment and least-privilege access; Podman enforces it. Do not give agents the host Podman socket or unrestricted host mounts.
 - Do not place production secrets or broad Proxmox credentials in agent environments.
 - Limit network access and credentials to the minimum required for each job.
 - Use disposable or snapshotted test environments where practical.
@@ -43,4 +44,4 @@ The first workflow prototype should demonstrate:
 - Failed tests lead to a bounded revision attempt.
 - A human can inspect the final diff and evidence before merging.
 
-Do not treat this proposal as proof that Hermes, GitHub, the model proxy, or any agent tools are already integrated.
+Do not treat this proposal as proof that Hermes can already provision Podman agents or that the Proxmox workflow is deployed. Host-process Hermes inference through the LLM Inference Gateway was validated on 2026-11-03; separate agent-container connectivity to the gateway remains unverified. See the [Hermes Podman runtime](engineering/HERMES_PODMAN_AGENT_RUNTIME.md) and [LLM Inference Gateway architecture](engineering/INFERENCE_GATEWAY_ARCHITECTURE.md).
