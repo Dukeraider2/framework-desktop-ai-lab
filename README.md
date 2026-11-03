@@ -95,6 +95,18 @@ The ComfyUI record distinguishes successful server startup and model discovery f
 </details>
 
 <details>
+<summary><strong>Hermes agent execution and LLM inference gateway</strong></summary>
+
+Hermes is the task orchestrator and first-line access authority. Every agent it provisions runs in a Podman container by default. Hermes defines each agent's environment and minimum task-required access; Podman enforces the container boundary. The LLM Inference Gateway is independent shared infrastructure used by Hermes, OpenCode, and other authorized clients. Host-process Hermes inference was validated on 2026-11-03; Podman agent provisioning, container-to-gateway connectivity, and gateway authentication/authorization remain implementation work.
+
+| Architecture | What it covers |
+| --- | --- |
+| [Hermes-Managed Podman Agent Runtime](docs/engineering/HERMES_PODMAN_AGENT_RUNTIME.md) | Per-task container environments, least-privilege access, provisioning, lifecycle, and acceptance gates |
+| [LLM Inference Gateway Architecture](docs/engineering/INFERENCE_GATEWAY_ARCHITECTURE.md) | Shared LLM routing, current validated host path, agent connectivity requirements, security gaps, and backend evolution |
+
+</details>
+
+<details>
 <summary><strong>Coral inference gateway and Frigate NVR</strong></summary>
 
 The first implementation priority: a Coral-specific inference gateway on the Promethean OPS-M, with Frigate NVR integration and an authenticated LAN API for the Framework AI Max and NAS. General-purpose network hardware sharing and driver-level device virtualization are explicitly deferred to a later research track. Hardware compatibility, model support, and safe device arbitration remain to be validated.
@@ -108,7 +120,7 @@ The first implementation priority: a Coral-specific inference gateway on the Pro
 <details>
 <summary><strong>Proxmox home lab proposal</strong></summary>
 
-This is a **planning track** for a proposed six-node Proxmox monitoring and multi-agent development design. The monitoring dashboard and agent workflow are not deployed.
+This is a **planning track** for a proposed six-node Proxmox monitoring and multi-agent development design. The Hermes host service and host-process LLM inference path are operationally validated, but Hermes-managed Podman agent provisioning, the monitoring dashboard, and the Proxmox integration are not yet deployed/validated.
 
 | Plan | What it covers |
 | --- | --- |
