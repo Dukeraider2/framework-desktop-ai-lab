@@ -5,7 +5,7 @@
 
 ## 1. Decision
 
-Agents created or dispatched by Hermes run in Podman containers. Podman is the mandatory execution runtime for these agent workloads. A VM is not the default execution unit for an individual Hermes-created agent. A VM may be used only when a task has a documented isolation or platform requirement that containers cannot satisfy, and the exception is approved by the user.
+Every task agent Hermes creates/provisions runs in a Podman container. Podman is the mandatory execution runtime for these agent workloads. A VM is not the default execution unit for an individual Hermes-created agent. A VM may be used only when a task has a documented isolation or platform requirement that containers cannot satisfy, and the exception is approved by the user.
 
 Hermes is the task orchestrator and first-line access authority. For each task, Hermes defines the agent's container environment and grants only the minimum access required to complete that task. This is a per-task decision, not one broad permission profile shared by all agents.
 
