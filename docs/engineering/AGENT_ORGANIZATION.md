@@ -1,63 +1,52 @@
-# Agent Organization and Responsibilities
+# Organization and Reporting Structure
 
-**Status:** Role architecture approved for planning. Product selection, installation, and integration remain to be validated.
+**Status:** Authoritative source of truth for organizational roles, reporting lines, communication, and deployment placement.
 
-## Executive and management
+## Reporting structure
 
-- **User:** Owner and final decision-maker; resolves escalated access risks and approves production-impacting actions.
-- **Quill / ChatGPT:** Technical director and planning partner for requirements, architecture, and review direction. It is not assumed to have direct access to the local host.
-- **Hermes:** Project and operations manager and first-line access authority. Receives tasks, decomposes work, assigns agents, coordinates dependencies, defines each agent's Podman container environment and minimum task-required access, manages access requests, tracks progress and time, supervises agent lifecycle, and escalates unresolved risks.
+```text
+OWNER (Gabriel)
+  |
+  | Directs / receives reports from
+  v
+HERMES (Chief of Staff and System Coordinator)
+  |
+  | Assigns, supervises, and receives reports from
+  v
+WORKER AGENTS
+  |-- Research
+  |-- Engineering / Development
+  |-- Operations / Infrastructure
+  |-- QA / Independent Review
+  |-- Creative Production
+  |-- Other task-specific specialists
+```
 
-## Agent execution model
+## Roles
 
-Every agent that Hermes provisions for task execution runs in a Podman container by default. Hermes specifies the per-task image/runtime, environment, workspace mounts, network access, devices, credentials, resource limits, and lifecycle. Podman enforces the declared container boundary. Agents do not receive broad host access or the Podman control socket by default. A VM is an exception only for a documented task requirement that containers cannot meet and requires user approval. See [Hermes-Managed Podman Agent Runtime](HERMES_PODMAN_AGENT_RUNTIME.md).
+- **Owner:** Sets priorities and standing policy. Makes final decisions on escalations, policy exceptions, and actions requiring owner approval.
+- **Hermes:** The single coordinator and the owner's sole operational point of contact. Receives every task from the owner, plans and delegates work, selects and supervises worker agents, controls ordinary task-scoped access, resolves coordination, evaluates returned work, and reports results to the owner.
+- **Worker agents:** Perform only work assigned by Hermes. They report to Hermes, never directly to the owner. An agent needing additional access requests it from Hermes. Hermes grants or denies it within standing policy; a denial includes a practical alternative. If no safe workable alternative exists or an owner-level decision is required, Hermes escalates to the owner.
 
-## Specialist capabilities
+## Communication rule
 
-The organization is capability-based. A role may be implemented by a dedicated agent, a specialized agent profile, or a tool controlled by an agent. Not every role requires a separate always-running process.
+The only normal command and reporting path is:
 
-### Engineering
-- Systems and infrastructure engineering.
-- Application and API development.
-- Feature and service integration.
-- Game development and engine tooling.
-- Authorized reverse engineering and systems analysis.
-- Build and release engineering.
+```text
+OWNER <-> HERMES <-> WORKER AGENTS
+```
 
-### Quality, security, and reliability
-- Independent code and architecture review.
-- QA, test execution, and regression testing.
-- Security and dependency auditing.
-- Performance and resource-efficiency analysis.
-- Documentation and reference verification.
+The owner communicates with Hermes, not with worker agents. Worker-agent messages, questions, requests, progress, and deliverables are routed through Hermes. No worker agent is an alternate coordinator or owner-facing endpoint.
 
-### Creative production
-- Image generation and visual assets.
-- 3D and game-asset production.
-- AI video and short-form video generation.
-- Scriptwriting, editing, audio, and post-production.
-- Content production, packaging, and publishing preparation.
-- Social-media planning, scheduling, analytics, and community operations.
+## Deployment placement
 
-### Research and knowledge
-- Technical and product research.
-- Hardware compatibility research.
-- Manufacturer-documentation curation.
-- Model evaluation and benchmarking.
-- Knowledge-base maintenance.
+- **Hermes runs natively at the Ubuntu host/system level, outside all containers.** It must remain a host-level service so it can coordinate the system and manage worker-container lifecycle.
+- **Only worker agents that Hermes deploys are containerized**, using rootless Podman by default. Each worker receives a task-scoped environment and only the access required for its assignment.
+- Hermes supervises those containers through the host's Podman installation. Worker agents do not receive unrestricted host access or control of the host Podman service.
+- The LLM Inference Gateway and other shared infrastructure are separate services. Their detailed interfaces and security requirements belong in their respective technical specifications, not in this organization chart.
 
-## Candidate software, not final selections
+## Authority
 
-OpenCode, OpenHands, Aider, Hermes, Ollama, ComfyUI, Ghidra, Blender, FFmpeg, n8n, and other tools are candidates or components discussed for evaluation. Listing a product does not mean it is installed, approved for every use, or integrated.
+Hermes is the first-line authority for ordinary task coordination and task-scoped worker access under the owner's standing policy. The owner retains final authority over policy changes, exceptions, unresolved escalations, and owner-reserved actions.
 
-## Separation of duties
-
-- Implementers must not approve their own work.
-- Review and QA must be independent of implementation.
-- Hermes coordinates reviews but does not substitute for independent technical review.
-- Security-sensitive and production-impacting actions require applicable approval.
-- Agent capabilities and permissions must be explicit and auditable.
-
-## Resource-aware scheduling
-
-Hermes should consult current resource telemetry before dispatching resource-intensive work. GPU inference, image/video generation, builds, and parallel agents must be scheduled against available CPU, RAM, GPU/VRAM, storage, and system responsiveness. Missing or stale telemetry must not be treated as available capacity.
+This file is the sole source of truth for the organization chart and the rules above. Other documents must link here rather than restating, paraphrasing, or redefining these roles, reporting lines, communication paths, or deployment placement.
