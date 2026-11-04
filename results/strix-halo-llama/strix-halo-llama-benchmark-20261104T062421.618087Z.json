@@ -1,0 +1,228 @@
+{
+  "timestamp_utc": "2026-11-04T06:24:21.614742+00:00",
+  "benchmark": "strix-halo-llama.cpp",
+  "endpoint": "http://127.0.0.1:18081",
+  "model": "/models/Qwen3-8B.gguf",
+  "host": {
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "kernel": "7.0.0-38-generic",
+    "machine": "x86_64"
+  },
+  "warmups_requested": 0,
+  "warmups": [],
+  "runs_requested": 1,
+  "tokens_requested_per_run": 128,
+  "prompt_repeats": 37,
+  "prompt_text_chars": 16946,
+  "runs": [
+    {
+      "run": 1,
+      "prompt_tokens": 2997,
+      "prompt_processing_ms": 2357.977,
+      "prompt_tokens_per_second": 1271.0047638293333,
+      "generated_tokens": 128,
+      "generation_ms": 3367.944,
+      "generation_tokens_per_second": 37.70846546142097,
+      "client_total_latency_ms": 5732.642
+    }
+  ],
+  "resource_snapshots": {
+    "before_benchmark": {
+      "timestamp_utc": "2026-11-04T06:24:15.465008+00:00",
+      "stage": "before_benchmark",
+      "mem_available_kib": 101831884,
+      "gfx_activity_percent": 100,
+      "used_gtt_mb": 9607,
+      "free_gtt_mb": 53283,
+      "used_vram_mb": 486,
+      "free_vram_mb": 26,
+      "llama_server_gpu_processes": [
+        {
+          "pid": 3104083,
+          "name": "/usr/local/bin/llama-server",
+          "gpu_memory_bytes": 1314045952,
+          "gpu_memory_unit": "B"
+        },
+        {
+          "pid": 3156216,
+          "name": "/usr/local/bin/llama-server",
+          "gpu_memory_bytes": 5938372608,
+          "gpu_memory_unit": "B"
+        }
+      ],
+      "llama_server_gpu_memory_bytes": 7252418560
+    },
+    "after_benchmark": {
+      "timestamp_utc": "2026-11-04T06:24:21.614390+00:00",
+      "stage": "after_benchmark",
+      "mem_available_kib": 101851616,
+      "gfx_activity_percent": 100,
+      "used_gtt_mb": 9605,
+      "free_gtt_mb": 53285,
+      "used_vram_mb": 486,
+      "free_vram_mb": 26,
+      "llama_server_gpu_processes": [
+        {
+          "pid": 3104083,
+          "name": "/usr/local/bin/llama-server",
+          "gpu_memory_bytes": 1314045952,
+          "gpu_memory_unit": "B"
+        },
+        {
+          "pid": 3156216,
+          "name": "/usr/local/bin/llama-server",
+          "gpu_memory_bytes": 5936214016,
+          "gpu_memory_unit": "B"
+        }
+      ],
+      "llama_server_gpu_memory_bytes": 7250259968
+    }
+  },
+  "summary": {
+    "prompt_processing_ms": {
+      "mean": 2357.977,
+      "median": 2357.977,
+      "min": 2357.977,
+      "max": 2357.977
+    },
+    "prompt_tokens_per_second": {
+      "mean": 1271.0047638293333,
+      "median": 1271.0047638293333,
+      "min": 1271.0047638293333,
+      "max": 1271.0047638293333
+    },
+    "generation_ms": {
+      "mean": 3367.944,
+      "median": 3367.944,
+      "min": 3367.944,
+      "max": 3367.944
+    },
+    "generation_tokens_per_second": {
+      "mean": 37.70846546142097,
+      "median": 37.70846546142097,
+      "min": 37.70846546142097,
+      "max": 37.70846546142097
+    },
+    "client_total_latency_ms": {
+      "mean": 5732.642,
+      "median": 5732.642,
+      "min": 5732.642,
+      "max": 5732.642
+    }
+  },
+  "gpu": {
+    "sampler": "amd-smi metric --usage --mem-usage --json",
+    "requested_sample_interval_seconds": 1.0,
+    "actual_sample_interval_seconds_mean": 1.4321990013122559,
+    "samples": [
+      {
+        "timestamp_utc": "2026-11-04T06:24:15.466373+00:00",
+        "stage": "run_1",
+        "mem_available_kib": 101832944,
+        "gfx_activity_percent": 100,
+        "used_gtt_mb": 9604,
+        "free_gtt_mb": 53286,
+        "used_vram_mb": 486,
+        "free_vram_mb": 26,
+        "llama_server_gpu_processes": [
+          {
+            "pid": 3104083,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 1314045952,
+            "gpu_memory_unit": "B"
+          },
+          {
+            "pid": 3156216,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 5935247360,
+            "gpu_memory_unit": "B"
+          }
+        ],
+        "llama_server_gpu_memory_bytes": 7249293312
+      },
+      {
+        "timestamp_utc": "2026-11-04T06:24:16.893517+00:00",
+        "stage": "run_1",
+        "mem_available_kib": 101848964,
+        "gfx_activity_percent": 100,
+        "used_gtt_mb": 9604,
+        "free_gtt_mb": 53286,
+        "used_vram_mb": 486,
+        "free_vram_mb": 26,
+        "llama_server_gpu_processes": [
+          {
+            "pid": 3104083,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 1314045952,
+            "gpu_memory_unit": "B"
+          },
+          {
+            "pid": 3156216,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 5935247360,
+            "gpu_memory_unit": "B"
+          }
+        ],
+        "llama_server_gpu_memory_bytes": 7249293312
+      },
+      {
+        "timestamp_utc": "2026-11-04T06:24:18.322084+00:00",
+        "stage": "run_1",
+        "mem_available_kib": 101845148,
+        "gfx_activity_percent": 100,
+        "used_gtt_mb": 9605,
+        "free_gtt_mb": 53285,
+        "used_vram_mb": 486,
+        "free_vram_mb": 26,
+        "llama_server_gpu_processes": [
+          {
+            "pid": 3104083,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 1314045952,
+            "gpu_memory_unit": "B"
+          },
+          {
+            "pid": 3156216,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 5935812608,
+            "gpu_memory_unit": "B"
+          }
+        ],
+        "llama_server_gpu_memory_bytes": 7249858560
+      },
+      {
+        "timestamp_utc": "2026-11-04T06:24:19.762970+00:00",
+        "stage": "run_1",
+        "mem_available_kib": 101852784,
+        "gfx_activity_percent": 100,
+        "used_gtt_mb": 9605,
+        "free_gtt_mb": 53285,
+        "used_vram_mb": 486,
+        "free_vram_mb": 26,
+        "llama_server_gpu_processes": [
+          {
+            "pid": 3104083,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 1314045952,
+            "gpu_memory_unit": "B"
+          },
+          {
+            "pid": 3156216,
+            "name": "/usr/local/bin/llama-server",
+            "gpu_memory_bytes": 5936214016,
+            "gpu_memory_unit": "B"
+          }
+        ],
+        "llama_server_gpu_memory_bytes": 7250259968
+      }
+    ],
+    "sample_errors": [],
+    "gfx_activity_percent_min": 100,
+    "gfx_activity_percent_max": 100,
+    "used_gtt_mb_min": 9604,
+    "used_gtt_mb_max": 9605,
+    "used_vram_mb_min": 486,
+    "used_vram_mb_max": 486
+  },
+  "error": null
+}

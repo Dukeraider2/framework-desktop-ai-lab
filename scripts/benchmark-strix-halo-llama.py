@@ -57,6 +57,79 @@ def metric_value(node: Any, key: str) -> float | int | None:
     return None
 
 
+def process_rows(node: Any) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if isinstance(node, dict):
+        info = node.get("process_info")
+        if isinstance(info, dict):
+            mem = info.get("mem_usage", {})
+            rows.append(
+                {
+                    "pid": info.get("pid"),
+                    "name": info.get("name"),
+                    "gpu_memory_bytes": mem.get("value") if isinstance(mem, dict) else None,
+                    "gpu_memory_unit": mem.get("unit") if isinstance(mem, dict) else None,
+                }
+            )
+        else:
+            for value in node.values():
+                rows.extend(process_rows(value))
+    elif isinstance(node, list):
+        for value in node:
+            rows.extend(process_rows(value))
+    return rows
+
+
+def available_memory_kib() -> int | None:
+    try:
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1])
+    except (OSError, ValueError):
+        return None
+    return None
+
+
+def gpu_snapshot(stage: str) -> dict[str, Any]:
+    metrics = subprocess.run(
+        ["amd-smi", "metric", "--usage", "--mem-usage", "--json"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    processes = subprocess.run(
+        ["amd-smi", "process", "--json"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    metric_data = json.loads(metrics.stdout)
+    process_data = process_rows(json.loads(processes.stdout))
+    llama_processes = [
+        item
+        for item in process_data
+        if "llama-server" in str(item.get("name", ""))
+    ]
+    return {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "stage": stage,
+        "mem_available_kib": available_memory_kib(),
+        "gfx_activity_percent": metric_value(metric_data, "gfx_activity"),
+        "used_gtt_mb": metric_value(metric_data, "used_gtt"),
+        "free_gtt_mb": metric_value(metric_data, "free_gtt"),
+        "used_vram_mb": metric_value(metric_data, "used_vram"),
+        "free_vram_mb": metric_value(metric_data, "free_vram"),
+        "llama_server_gpu_processes": llama_processes,
+        "llama_server_gpu_memory_bytes": sum(
+            item["gpu_memory_bytes"]
+            for item in llama_processes
+            if isinstance(item.get("gpu_memory_bytes"), (int, float))
+        ),
+    }
+
+
 class GpuSampler(threading.Thread):
     def __init__(self, interval: float) -> None:
         super().__init__(daemon=True)
@@ -83,17 +156,37 @@ class GpuSampler(threading.Thread):
                     timeout=10,
                 )
                 payload = json.loads(result.stdout)
+                process_result = subprocess.run(
+                    ["amd-smi", "process", "--json"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                processes = process_rows(json.loads(process_result.stdout))
+                llama_processes = [
+                    item
+                    for item in processes
+                    if "llama-server" in str(item.get("name", ""))
+                ]
                 with self.stage_lock:
                     stage = self.stage
                 self.samples.append(
                     {
                         "timestamp_utc": sampled_at,
                         "stage": stage,
+                        "mem_available_kib": available_memory_kib(),
                         "gfx_activity_percent": metric_value(payload, "gfx_activity"),
                         "used_gtt_mb": metric_value(payload, "used_gtt"),
                         "free_gtt_mb": metric_value(payload, "free_gtt"),
                         "used_vram_mb": metric_value(payload, "used_vram"),
                         "free_vram_mb": metric_value(payload, "free_vram"),
+                        "llama_server_gpu_processes": llama_processes,
+                        "llama_server_gpu_memory_bytes": sum(
+                            item["gpu_memory_bytes"]
+                            for item in llama_processes
+                            if isinstance(item.get("gpu_memory_bytes"), (int, float))
+                        ),
                     }
                 )
             except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as exc:
@@ -150,6 +243,7 @@ def main() -> int:
     if args.model not in model_ids:
         raise RuntimeError(f"Model {args.model!r} is not served. Available models: {model_ids}")
 
+    resources_before = gpu_snapshot("before_benchmark")
     prompt = (PROMPT + "\n\n") * args.prompt_repeats
     sampler = GpuSampler(args.sample_interval)
     sampler.start()
@@ -214,6 +308,7 @@ def main() -> int:
     finally:
         sampler.set_stage("finished")
         sampler.stop()
+    resources_after = gpu_snapshot("after_benchmark")
 
     metrics = sampler.samples
     numeric_samples = lambda key: [s[key] for s in metrics if isinstance(s.get(key), (int, float))]
@@ -239,6 +334,10 @@ def main() -> int:
         "prompt_repeats": args.prompt_repeats,
         "prompt_text_chars": len(prompt),
         "runs": measured,
+        "resource_snapshots": {
+            "before_benchmark": resources_before,
+            "after_benchmark": resources_after,
+        },
         "summary": {
             "prompt_processing_ms": summarize(measured, "prompt_processing_ms"),
             "prompt_tokens_per_second": summarize(measured, "prompt_tokens_per_second"),

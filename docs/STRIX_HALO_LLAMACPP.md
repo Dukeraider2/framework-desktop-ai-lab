@@ -36,9 +36,10 @@ Its server mode has a Podman backend; the inspected runner builds native `podman
 - Installed Quadlet: `${XDG_CONFIG_HOME:-$HOME/.config}/containers/systemd/llama-cpp-rocm.container`
 - Model directory: `${XDG_DATA_HOME:-$HOME/.local/share}/llama.cpp/models`
 - Model used for the smoke test: `Qwen3-0.6B-Q8_0.gguf`, 639,446,688 bytes, SHA-256 `9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031`
+- Larger test copy: `Qwen3-8B.gguf`, 5,225,374,496 bytes, SHA-256 `a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f`; copied from Ollama's `qwen3:8b` GGUF blob using the Ollama account's existing read access.
 - Model source: [Qwen/Qwen3-0.6B-GGUF](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF), Apache-2.0
 
-The smoke-test model was downloaded because no local GGUF was present. Do not fetch larger models without checking first. The host directory is mounted read-only at `/models`; cache writes go to `/tmp` in the container.
+The 0.6B smoke-test model was downloaded because no local GGUF was present at the initial deployment. The 8B test reused the existing Ollama blob; no second model copy was downloaded. The host directory is mounted read-only at `/models`; cache writes go to `/tmp` in the container.
 
 The container maps only `/dev/kfd` and `/dev/dri`, with `GroupAdd=keep-groups`, `UserNS=keep-id`, seccomp unconfined for the ROCm userspace, and SELinux label separation disabled for device access. It is not privileged and does not use host networking. The container listens on `0.0.0.0:8080` internally, but Podman publishes it only as host `127.0.0.1:18080`.
 
@@ -113,7 +114,48 @@ Verified on 2026-11-03 local time (JSON timestamp is UTC):
 
 ### Existing larger Ollama models
 
-`ollama list` reported `qwen3-coder:30b` (30.5B Q4_K_M, 18.6 GB), `mannix/deepseek-coder-v2-lite-instruct:latest` (15.7B Q4_0, 8.9 GB), and `qwen3:8b` (8.2B Q4_K_M, 5.2 GB). The only GGUF in the llama.cpp model directory is the 0.6B smoke-test file. Host `MemAvailable` was about 108 GB and the GPU reported about 58.9 GB free GTT at inventory time, so the Qwen3-Coder 30B artifact size is a plausible fit at the current 4K context configuration. This is a capacity estimate, not a llama.cpp compatibility or performance result. The larger Ollama models were left unbenchmarked; their service-owned model blobs were not copied or permissions changed.
+`ollama list` also reports `qwen3-coder:30b` (30.5B Q4_K_M, 18.6 GB) and `mannix/deepseek-coder-v2-lite-instruct:latest` (15.7B Q4_0, 8.9 GB). Qwen3-Coder 30B remains unbenchmarked; its size is only a memory-fit estimate, not a llama.cpp compatibility or performance result.
+
+## Qwen3 8B temporary test
+
+The source was `ollama show --modelfile qwen3:8b`, which points to Ollama blob `sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f`. Read as a standalone model it had GGUF magic `GGUF`, version 3, 399 tensors and 28 metadata entries. The source and copied destination SHA-256 both equal `a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f`. The destination is `~/.local/share/llama.cpp/models/Qwen3-8B.gguf`; it remains available for later tests. Ollama ownership, permissions, configuration and service state were not changed.
+
+The temporary rootless container was `llama-qwen3-8b-test`, pinned to the same image digest as the 0.6B service. It mapped `/dev/kfd` and `/dev/dri`, used `GroupAdd=keep-groups`, `UserNS=keep-id`, label disable and unconfined seccomp, mounted the model directory read-only, and published only `127.0.0.1:18081:8080`. llama.cpp arguments were `-m /models/Qwen3-8B.gguf -c 4096 -ngl 999 -fa 1 --load-mode none --host 0.0.0.0 --port 8080 --parallel 1`.
+
+The model load took about **957 ms** from llama.cpp's `loading model` log timestamp to `model loaded`. The first successful health check returned HTTP 200. The verbose diagnostic startup identified ROCm0 as the Radeon 8060S, reported 36 model layers and **37/37 layers offloaded to GPU**. It reported a 4,643.78 MiB ROCm0 model buffer, 333.84 MiB ROCm host buffer, 576 MiB GPU KV cache and 108.01 MiB GPU compute buffer. There was no CPU layer fallback, unsupported-model error or allocation failure. The separate ROCm host buffer is not an offloaded transformer layer.
+
+Two nonfatal warnings were logged: the server has no API key and allows all CORS origins, and the model's control-looking `</s>` token was overridden as non-control. The temporary API listened only on host loopback. `/health`, `/v1/models`, a direct completion, and OpenAI-compatible `/v1/chat/completions` all returned HTTP 200. The chat request finished normally with `Qwen3 8B chat test passed.`
+
+### Qwen3 8B repeat benchmark
+
+The benchmark used one 64-token warm-up, three measured runs, 972 prompt tokens and 256 generated tokens per run. It records timestamped AMD-SMI samples and per-process GPU memory in [`results/strix-halo-llama/strix-halo-llama-benchmark-20261104T062248.241625Z.json`](../results/strix-halo-llama/strix-halo-llama-benchmark-20261104T062248.241625Z.json). Summary values are mean (median; min–max):
+
+- Prompt processing: **1,280.4 tokens/s** (1,279.7; 1,279.2–1,282.2), **759.2 ms** (759.6; 758.1–759.8).
+- Generation: **39.37 tokens/s** (39.52; 39.07–39.52), **6,477.5 ms** per 256-token run (6,453.0; 6,451.8–6,527.5).
+- Client total latency: **7,240.2 ms** mean (7,215.5; 7,214.6–7,290.5).
+- Peak aggregate GTT was 9,598 MB and dedicated VRAM was 486 MB. `amd-smi process` attributed a maximum **5,938,372,608 bytes** (5.94 GB) of GPU memory to the 8B `llama-server` PID; the existing 0.6B server used about 1.31 GB.
+- The requested AMD-SMI interval was 1 second; observed mean spacing was **1.46 seconds** across 17 samples.
+
+The `gfx_activity` sensor reached 100% after loading and stayed at 100% through idle and inference; per-process GFX time counters remained 0 ns. After stopping the temporary instance, aggregate activity returned to 1%. Treat the 100% as a sustained sensor reading associated with the loaded 8B instance, not an inference-only utilization measurement.
+
+### 4K context test and comparison
+
+The additional test completed with **2,997 prompt tokens plus 128 generated tokens** at the unchanged 4K context. Prompt processing took 2,358 ms (1,271.0 tokens/s); generation took 3,368 ms (37.71 tokens/s), with 5,733 ms client latency. Peak aggregate GTT was 9,605 MB and dedicated VRAM was 486 MB. Full one-run data is in [`results/strix-halo-llama/strix-halo-llama-benchmark-20261104T062421.618087Z.json`](../results/strix-halo-llama/strix-halo-llama-benchmark-20261104T062421.618087Z.json).
+
+| Metric | Qwen3 0.6B Q8_0 | Qwen3 8B Q4_K_M |
+|---|---:|---:|
+| Model file / parameters | 639.4 MB / 596M | 5,225.4 MB / 8.19B |
+| Prompt processing tok/s (mean) | 11,928.5 | 1,280.4 |
+| Generation tok/s (mean) | 183.64 | 39.37 |
+| Generation latency (256 tokens, mean) | 1,388.6 ms | 6,477.5 ms |
+| Peak aggregate GTT | 3,915 MB | 9,605 MB (including context test) |
+| Peak dedicated VRAM | 482 MB | 486 MB |
+| Sampled gfx activity | 94% peak in four samples | 100% after load, including idle; sensor saturated |
+| ~3K prompt / 128 output at 4K context | Not run | Passed: 2,997 prompt tokens |
+
+These are results for different model sizes and quantizations; raw throughput is not a direct comparison of hardware efficiency. At peak test use, about 53.3 GB GTT and 96.7 GiB system memory remained available. The 8B model fits comfortably in the current configuration. After temporary-container cleanup, free GTT returned to about 58.97 GB, available system memory to 103.2 GiB, and the original llama.cpp, Ollama, Nginx and ComfyUI routes remained healthy. Nginx configuration was not changed.
+
+**Next-model recommendation:** proceed with a temporary Qwen3-Coder 30B test, not a permanent service change. Its locally available 18.6 GB Q4_K_M model is plausible against the measured 53.3 GB free GTT after the 8B run, but the 8B result does not prove 30B compatibility, fit at longer context, or performance. Do not download another copy.
 
 This is a small 0.6B smoke test, not a representative performance result for larger models. Numbers depend on prompt length, clocks, sampling interval and concurrent activity. This is a ROCm baseline; Vulkan RADV has not been benchmarked.
 
