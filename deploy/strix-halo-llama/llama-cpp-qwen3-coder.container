@@ -13,7 +13,7 @@ UserNS=keep-id
 PublishPort=127.0.0.1:18081:8080
 Volume=%h/.local/share/llama.cpp/models:/models:ro
 Environment=XDG_CACHE_HOME=/tmp
-Exec=llama-server -m /models/Qwen3-Coder-30B.gguf -c 4096 -ngl 999 -fa 1 --load-mode none --host 0.0.0.0 --port 8080 --parallel 1 --verbosity 4
+Exec=llama-server -m /models/Qwen3-Coder-30B.gguf -c 65536 -ngl 999 -fa 1 --load-mode none --host 0.0.0.0 --port 8080 --parallel 1 --verbosity 4
 
 [Service]
 Restart=on-failure
