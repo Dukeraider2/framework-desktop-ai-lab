@@ -79,12 +79,15 @@ Do not rely on the rolling tag alone for reproducibility; record the selected di
 
 ## NGINX gateway route
 
-The NGINX user Quadlet's pasta network now forwards host loopback port 18080 into its own network namespace. The added `/llama/` location strips that path prefix and forwards to llama.cpp. Example endpoints:
+The NGINX user Quadlet's pasta network forwards host ports 18080 and 18081 into its own network namespace. The `/llama/` and `/llama-coder/` locations strip their path prefixes and forward to their separate llama.cpp services. Example endpoints:
 
 ```text
 Direct:   http://127.0.0.1:18080/v1/models
 Gateway:  http://127.0.0.1:11435/llama/v1/models
 OpenAI base URL through gateway: http://127.0.0.1:11435/llama/v1
+Coder direct: http://127.0.0.1:18081/v1/models
+Coder gateway: http://127.0.0.1:11435/llama-coder/v1/models
+Coder OpenAI base URL: http://127.0.0.1:11435/llama-coder/v1
 ```
 
 The NGINX `/` location is unchanged and still forwards to Ollama on port 11434. The ComfyUI listener on 11436 is unchanged. Before editing either live NGINX file, make timestamped backups. Validate with `podman exec llm-proxy nginx -t`; the pasta host-port mapping takes effect when `llm-proxy.service` is restarted.
@@ -114,7 +117,7 @@ Verified on 2026-11-03 local time (JSON timestamp is UTC):
 
 ### Existing larger Ollama models
 
-`ollama list` also reports `qwen3-coder:30b` (30.5B Q4_K_M, 18.6 GB) and `mannix/deepseek-coder-v2-lite-instruct:latest` (15.7B Q4_0, 8.9 GB). Qwen3-Coder 30B remains unbenchmarked; its size is only a memory-fit estimate, not a llama.cpp compatibility or performance result.
+`ollama list` also reports `qwen3-coder:30b` (30.5B Q4_K_M, 18.6 GB) and `mannix/deepseek-coder-v2-lite-instruct:latest` (15.7B Q4_0, 8.9 GB). Qwen3-Coder 30B is now deployed as a separate permanent llama.cpp backend below. It has passed operational inference checks, but has not been benchmarked.
 
 ## Qwen3 8B temporary test
 
@@ -155,7 +158,30 @@ The additional test completed with **2,997 prompt tokens plus 128 generated toke
 
 These are results for different model sizes and quantizations; raw throughput is not a direct comparison of hardware efficiency. At peak test use, about 53.3 GB GTT and 96.7 GiB system memory remained available. The 8B model fits comfortably in the current configuration. After temporary-container cleanup, free GTT returned to about 58.97 GB, available system memory to 103.2 GiB, and the original llama.cpp, Ollama, Nginx and ComfyUI routes remained healthy. Nginx configuration was not changed.
 
-**Next-model recommendation:** proceed with a temporary Qwen3-Coder 30B test, not a permanent service change. Its locally available 18.6 GB Q4_K_M model is plausible against the measured 53.3 GB free GTT after the 8B run, but the 8B result does not prove 30B compatibility, fit at longer context, or performance. Do not download another copy.
+**Next-model recommendation:** Qwen3-Coder 30B now loads fully on the GPU at 4K context. It has not had a benchmark suite or longer-context evaluation; measure workload performance before deciding whether to change context settings.
+
+## Permanent Qwen3-Coder 30B backend
+
+The permanent service reuses the locally installed Ollama model blob; no model was downloaded and Ollama files or service settings were not changed. `ollama show --modelfile qwen3-coder:30b` identified source blob `/usr/share/ollama/.ollama/models/blobs/sha256-1194192cf2a187eb02722edcc3f77b11d21f537048ce04b67ccf8ba78863006a`. The source was read as the `ollama` account and copied once as the owner to `~/.local/share/llama.cpp/models/Qwen3-Coder-30B.gguf` (18,556,688,736 bytes). Both source and destination SHA-256 are `1194192cf2a187eb02722edcc3f77b11d21f537048ce04b67ccf8ba78863006a`; the file is GGUF v3. Ollama ownership, permissions, configuration and service state were left unchanged.
+
+The user Quadlet template is [`deploy/strix-halo-llama/llama-cpp-qwen3-coder.container`](../deploy/strix-halo-llama/llama-cpp-qwen3-coder.container), installed at `~/.config/containers/systemd/llama-cpp-qwen3-coder.container`. It pins `docker.io/kyuz0/amd-strix-halo-toolboxes@sha256:5893ef15c436f15bee2378c2b5ecfdf0f6c2c45a07f401a5dd2e3ce4a38edcf4` and runs llama.cpp `0.7.0-dev (build 11870, commit 74bca3950)` as a rootless Podman container. Container: `llama-qwen3-coder`; systemd user unit: `llama-cpp-qwen3-coder.service`. The unit is generated and pulled in by `default.target`. User lingering was inspected and not changed; no reboot was performed.
+
+Runtime settings use `/dev/kfd` and `/dev/dri`, `GroupAdd=keep-groups`, `UserNS=keep-id`, unconfined seccomp and disabled container security labels, matching the existing proven toolbox runtime. The model directory is mounted read-only at `/models`. Host port `127.0.0.1:18081` maps to container port 8080. The launch arguments are `-m /models/Qwen3-Coder-30B.gguf -c 4096 -ngl 999 -fa 1 --load-mode none --host 0.0.0.0 --port 8080 --parallel 1 --verbosity 4`. The configured context is 4096; all 49 model layers (48 repeating and output layer) were offloaded to the Radeon 8060S. Logs reported a 17,524.43 MiB ROCm model buffer, 166.92 MiB ROCm host buffer, 384 MiB GPU KV cache, and 88.01 MiB GPU compute buffer. The host buffer is not CPU layer fallback. At load, ROCm reported 60,528 MiB free; projected GPU allocation was about 17,996 MiB. No allocation failure or unsupported-model warning appeared. The service has not been performance benchmarked or tested at a larger context.
+
+Management and API:
+
+```bash
+systemctl --user status llama-cpp-qwen3-coder.service
+systemctl --user start llama-cpp-qwen3-coder.service
+systemctl --user stop llama-cpp-qwen3-coder.service
+systemctl --user restart llama-cpp-qwen3-coder.service
+journalctl --user -u llama-cpp-qwen3-coder.service -f
+curl -fsS http://127.0.0.1:18081/health
+```
+
+Direct OpenAI-compatible base URL: `http://127.0.0.1:18081/v1`. NGINX exposes this as `http://127.0.0.1:11435/llama-coder/v1`; its separate `/llama-coder/` route targets port 18081 and leaves `/` (Ollama) and `/llama/` (0.6B llama.cpp) intact. ComfyUI on port 11436 is unchanged. The live NGINX files were backed up before modification as `~/.config/llm-proxy/default.conf.bak-20261104-160306` and `~/.config/containers/systemd/llm-proxy.container.bak-20261104-160306`. NGINX configuration validation passed before reload.
+
+To update, review the upstream stable ROCm toolbox, pull and inspect its digest, update the pinned image in both the repository template and installed Quadlet, then run `systemctl --user daemon-reload` and restart the service. The model mount and launch parameters remain independent of host ROCm, PyTorch, Ollama and ComfyUI. No boot parameters, firmware, host packages, Podman storage or unrelated services were changed for this deployment.
 
 This is a small 0.6B smoke test, not a representative performance result for larger models. Numbers depend on prompt length, clocks, sampling interval and concurrent activity. This is a ROCm baseline; Vulkan RADV has not been benchmarked.
 
