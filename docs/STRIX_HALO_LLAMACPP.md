@@ -4,7 +4,7 @@
 
 Verified on the Framework Desktop with Ryzen AI Max+ 395 / Radeon 8060S (`gfx1151`), Ubuntu 26.04.1, kernel `7.0.0-38-generic`, rootless Podman 5.7.0 and ROCm 10.1 host tools. The container uses the upstream stable `rocm-10.0` toolbox; host ROCm, Python, PyTorch, ComfyUI and Ollama were left intact.
 
-The toolbox provides an independent llama.cpp runtime. It is managed by a rootless user Quadlet and runs as `llama-cpp-rocm.service`. The API is published on host loopback `127.0.0.1:18080`. Through the existing loopback NGINX gateway, use `http://127.0.0.1:11435/llama/v1` as an OpenAI-compatible base URL. Existing Ollama requests at `http://127.0.0.1:11435/` continue to use Ollama.
+The toolboxes provide independent llama.cpp runtimes managed by rootless user Quadlets: the 0.6B service is `llama-cpp-rocm.service`, and Qwen3-Coder 30B is `llama-cpp-qwen3-coder.service`. Their APIs are published on host loopback ports 18080 and 18081. Through the existing loopback NGINX gateway, use `http://127.0.0.1:11435/llama/v1` for the 0.6B model and `http://127.0.0.1:11435/llama-coder/v1` for Qwen3-Coder 30B. Existing Ollama requests at `http://127.0.0.1:11435/` continue to use Ollama.
 
 ## Upstream image and host compatibility
 

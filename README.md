@@ -57,6 +57,9 @@ Restore points are planned at validated milestones; their placement in the diagr
 | [Baseline](docs/BASELINE.md) | Known system baseline |
 | [Installation record](docs/INSTALLATION_RECORD.md) | Retained commands and observations |
 | [GPU validation](docs/GPU_VALIDATION.md) | Vulkan, ROCm/HIP, and PyTorch checks |
+| [Strix Halo llama.cpp](docs/STRIX_HALO_LLAMACPP.md) | ROCm toolbox deployments, Quadlets, and measured performance |
+| [AI agent integration](docs/AI_AGENT_INTEGRATION.md) | Hermes and OpenCode local inference providers and compatibility results |
+| [Inference proxy operations](docs/LLM_PROXY_OPERATIONS.md) | Ollama, llama.cpp and ComfyUI gateway routes |
 | [Networking and Tailscale](docs/NETWORK_AND_TAILSCALE.md) | Network and remote-access notes |
 | [Restore points](docs/RESTORE_POINTS.md) | Backup and restore strategy |
 | [Streaming](docs/STREAMING.md) | Capture card and OBS validation |
