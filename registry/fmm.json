@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "qwen3-0.6b-q8-0",
+      "filename": "Qwen3-0.6B-Q8_0.gguf",
+      "source": "https://huggingface.co/Qwen/Qwen3-0.6B-GGUF",
+      "revision": null,
+      "license": null,
+      "sha256": null,
+      "quantization": "Q8_0",
+      "task_classes": [],
+      "storage_path": null,
+      "memory": {
+        "estimated_total_bytes": null,
+        "measured_peak_bytes": null,
+        "gpu_bytes": null,
+        "assumptions": "Complete deployment footprint unknown; file presence is not integrity or deployment validation."
+      },
+      "runtime_compatibility": "unverified",
+      "lifecycle": "Catalogued",
+      "gateway_route": null,
+      "last_validation": null,
+      "enabled": false
+    },
+    {
+      "id": "qwen3-8b",
+      "filename": "Qwen3-8B.gguf",
+      "source": null,
+      "revision": null,
+      "license": null,
+      "sha256": null,
+      "quantization": null,
+      "task_classes": [],
+      "storage_path": null,
+      "memory": {
+        "estimated_total_bytes": null,
+        "measured_peak_bytes": null,
+        "gpu_bytes": null,
+        "assumptions": "Complete deployment footprint unknown; file presence is not integrity or deployment validation."
+      },
+      "runtime_compatibility": "unverified",
+      "lifecycle": "Catalogued",
+      "gateway_route": null,
+      "last_validation": null,
+      "enabled": false
+    },
+    {
+      "id": "qwen3-coder-30b",
+      "filename": "Qwen3-Coder-30B.gguf",
+      "source": null,
+      "revision": null,
+      "license": null,
+      "sha256": null,
+      "quantization": null,
+      "task_classes": [],
+      "storage_path": null,
+      "memory": {
+        "estimated_total_bytes": null,
+        "measured_peak_bytes": null,
+        "gpu_bytes": null,
+        "assumptions": "Complete deployment footprint unknown; file presence is not integrity or deployment validation."
+      },
+      "runtime_compatibility": "unverified",
+      "lifecycle": "Catalogued",
+      "gateway_route": null,
+      "last_validation": null,
+      "enabled": false
+    },
+    {
+      "id": "gpt-oss-120b-mxfp4",
+      "filename": "gpt-oss-120b-MXFP4.gguf",
+      "source": null,
+      "revision": null,
+      "license": null,
+      "sha256": null,
+      "quantization": null,
+      "task_classes": [],
+      "storage_path": null,
+      "memory": {
+        "estimated_total_bytes": null,
+        "measured_peak_bytes": null,
+        "gpu_bytes": null,
+        "assumptions": "Complete deployment footprint unknown; file presence is not integrity or deployment validation."
+      },
+      "runtime_compatibility": "unverified",
+      "lifecycle": "Catalogued",
+      "gateway_route": null,
+      "last_validation": null,
+      "enabled": false
+    }
+  ]
+}

@@ -1,0 +1,366 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Framework Model Manager read-only prototype",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:18090"
+    }
+  ],
+  "security": [
+    {
+      "hermesBearer": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "hermesBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Operator-provisioned read-only token held by Hermes. This is not a deployment authorization."
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "Authenticated process health; not a service or deployment readiness assertion.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/registry": {
+      "get": {
+        "description": "Git-tracked desired metadata loaded at startup.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/inventory": {
+      "get": {
+        "description": "Observed GGUF files from operator-supplied roots; inode deduplication; no lifecycle promotion.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/status": {
+      "get": {
+        "description": "Timestamped host resources and best-effort local rootless Podman inventory.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/services": {
+      "get": {
+        "description": "Fixed loopback GET probes and observed model IDs; no inference.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/audit": {
+      "get": {
+        "description": "Last 1000 process-local audit events; not persistent.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          }
+        }
+      }
+    },
+    "/v1/plan": {
+      "post": {
+        "description": "Dry-run policy assessment; never reserves memory or authorizes deployment.",
+        "responses": {
+          "200": {
+            "description": "Observation or non-executable dry-run result"
+          },
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          },
+          "413": {
+            "description": "Body exceeds 4096 bytes"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "model_id"
+                ],
+                "properties": {
+                  "model_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/load": {
+      "post": {
+        "description": "Always denied while controller is disabled.",
+        "responses": {
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          },
+          "413": {
+            "description": "Body exceeds 4096 bytes"
+          },
+          "409": {
+            "description": "Controller disabled; no action performed"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "model_id"
+                ],
+                "properties": {
+                  "model_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/unload": {
+      "post": {
+        "description": "Always denied while controller is disabled.",
+        "responses": {
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          },
+          "413": {
+            "description": "Body exceeds 4096 bytes"
+          },
+          "409": {
+            "description": "Controller disabled; no action performed"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "model_id"
+                ],
+                "properties": {
+                  "model_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/switch": {
+      "post": {
+        "description": "Always denied while controller is disabled.",
+        "responses": {
+          "400": {
+            "description": "Malformed request"
+          },
+          "401": {
+            "description": "Bearer authentication required"
+          },
+          "403": {
+            "description": "Browser origin prohibited"
+          },
+          "404": {
+            "description": "Unknown endpoint or model"
+          },
+          "503": {
+            "description": "Observation unavailable"
+          },
+          "413": {
+            "description": "Body exceeds 4096 bytes"
+          },
+          "409": {
+            "description": "Controller disabled; no action performed"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "model_id"
+                ],
+                "properties": {
+                  "model_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

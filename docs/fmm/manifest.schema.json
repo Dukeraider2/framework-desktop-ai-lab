@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FMM registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "models"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "revision",
+          "license",
+          "filename",
+          "sha256",
+          "quantization",
+          "storage_path",
+          "runtime_compatibility",
+          "gateway_route",
+          "last_validation",
+          "id",
+          "enabled",
+          "lifecycle",
+          "task_classes",
+          "memory"
+        ],
+        "properties": {
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "revision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "license": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "filename": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "quantization": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "storage_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "runtime_compatibility": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "gateway_route": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "last_validation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "enum": [
+              "Catalogued",
+              "Candidate",
+              "Approved candidate",
+              "Installed",
+              "Qualified",
+              "Preferred",
+              "Restricted",
+              "Disabled",
+              "Retired"
+            ]
+          },
+          "task_classes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "memory": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "estimated_total_bytes",
+              "measured_peak_bytes",
+              "gpu_bytes",
+              "assumptions"
+            ],
+            "properties": {
+              "estimated_total_bytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "measured_peak_bytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "gpu_bytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "assumptions": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -137,3 +137,7 @@ These documents describe the approved architecture and workflow direction. They 
 - Never publish credentials, device keys, private IP maps, MAC addresses, serial numbers, or unredacted logs.
 - Keep model weights and caches outside OS restore images.
 - Use `$HOME` and `$XDG_CONFIG_HOME` instead of personal hard-coded paths.
+
+## Framework Model Manager (FMM)
+
+The [read-only FMM prototype](docs/fmm/README.md) inventories GGUF files, reports host/Podman resources and evaluates non-executable placement plans under the 100 GB deployment policy. Hermes retains authority; lifecycle operations remain disabled. See [implementation evidence and limitations](docs/fmm/IMPLEMENTATION_REPORT.md).
