@@ -1,0 +1,138 @@
+{
+  "timestamp_utc": "2026-11-04T05:03:14.096224+00:00",
+  "benchmark": "strix-halo-llama.cpp",
+  "endpoint": "http://127.0.0.1:18080",
+  "model": "/models/Qwen3-0.6B-Q8_0.gguf",
+  "host": {
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "kernel": "7.0.0-38-generic",
+    "machine": "x86_64"
+  },
+  "warmups_requested": 1,
+  "warmups": [
+    {
+      "prompt_tokens": 972,
+      "generated_tokens": 64,
+      "client_latency_ms": 446.956
+    }
+  ],
+  "runs_requested": 3,
+  "tokens_requested_per_run": 256,
+  "prompt_repeats": 12,
+  "prompt_text_chars": 5496,
+  "runs": [
+    {
+      "run": 1,
+      "prompt_tokens": 972,
+      "prompt_processing_ms": 82.043,
+      "prompt_tokens_per_second": 11847.445851565642,
+      "generated_tokens": 256,
+      "generation_ms": 1382.388,
+      "generation_tokens_per_second": 184.46340680040626,
+      "client_total_latency_ms": 1468.388
+    },
+    {
+      "run": 2,
+      "prompt_tokens": 972,
+      "prompt_processing_ms": 81.245,
+      "prompt_tokens_per_second": 11963.813157732784,
+      "generated_tokens": 256,
+      "generation_ms": 1392.738,
+      "generation_tokens_per_second": 183.0925845349233,
+      "client_total_latency_ms": 1478.799
+    },
+    {
+      "run": 3,
+      "prompt_tokens": 972,
+      "prompt_processing_ms": 81.174,
+      "prompt_tokens_per_second": 11974.277478010199,
+      "generated_tokens": 256,
+      "generation_ms": 1390.673,
+      "generation_tokens_per_second": 183.36445735266307,
+      "client_total_latency_ms": 1475.946
+    }
+  ],
+  "summary": {
+    "prompt_processing_ms": {
+      "mean": 81.48733333333334,
+      "median": 81.245,
+      "min": 81.174,
+      "max": 82.043
+    },
+    "prompt_tokens_per_second": {
+      "mean": 11928.512162436207,
+      "median": 11963.813157732784,
+      "min": 11847.445851565642,
+      "max": 11974.277478010199
+    },
+    "generation_ms": {
+      "mean": 1388.5996666666667,
+      "median": 1390.673,
+      "min": 1382.388,
+      "max": 1392.738
+    },
+    "generation_tokens_per_second": {
+      "mean": 183.6401495626642,
+      "median": 183.36445735266307,
+      "min": 183.0925845349233,
+      "max": 184.46340680040626
+    },
+    "client_total_latency_ms": {
+      "mean": 1474.3776666666665,
+      "median": 1475.946,
+      "min": 1468.388,
+      "max": 1478.799
+    }
+  },
+  "gpu": {
+    "sampler": "amd-smi metric --usage --mem-usage --json",
+    "requested_sample_interval_seconds": 1.0,
+    "actual_sample_interval_seconds_mean": 1.2170352935791016,
+    "samples": [
+      {
+        "timestamp_utc": "2026-11-04T05:03:09.225646+00:00",
+        "stage": "warmup_1",
+        "gfx_activity_percent": 17,
+        "used_gtt_mb": 3913,
+        "free_gtt_mb": 58977,
+        "used_vram_mb": 482,
+        "free_vram_mb": 30
+      },
+      {
+        "timestamp_utc": "2026-11-04T05:03:10.444823+00:00",
+        "stage": "run_1",
+        "gfx_activity_percent": 73,
+        "used_gtt_mb": 3914,
+        "free_gtt_mb": 58976,
+        "used_vram_mb": 482,
+        "free_vram_mb": 30
+      },
+      {
+        "timestamp_utc": "2026-11-04T05:03:11.651127+00:00",
+        "stage": "run_2",
+        "gfx_activity_percent": 89,
+        "used_gtt_mb": 3915,
+        "free_gtt_mb": 58975,
+        "used_vram_mb": 482,
+        "free_vram_mb": 30
+      },
+      {
+        "timestamp_utc": "2026-11-04T05:03:12.876752+00:00",
+        "stage": "run_3",
+        "gfx_activity_percent": 94,
+        "used_gtt_mb": 3915,
+        "free_gtt_mb": 58975,
+        "used_vram_mb": 482,
+        "free_vram_mb": 30
+      }
+    ],
+    "sample_errors": [],
+    "gfx_activity_percent_min": 17,
+    "gfx_activity_percent_max": 94,
+    "used_gtt_mb_min": 3913,
+    "used_gtt_mb_max": 3915,
+    "used_vram_mb_min": 482,
+    "used_vram_mb_max": 482
+  },
+  "error": null
+}

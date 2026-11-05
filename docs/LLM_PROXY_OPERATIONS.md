@@ -1,10 +1,10 @@
 # LLM Proxy: Design and Operations
 
-> **Status: Partially implemented.** The rootless NGINX proxy is running as a Quadlet-generated user service and local API/inference tests pass. Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale end-to-end access remain unverified. Do not treat the deployment as complete until those checks pass.
+> **Status: Local routes verified.** The rootless NGINX proxy is running as a Quadlet-generated user service. Ollama remains at `/`; separate llama.cpp ROCm backends are available at `/llama/` and `/llama-coder/`. Both NGINX configuration syntax and local inference routes pass. Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale end-to-end access remain unverified.
 
 ## Scope
 
-This phase covers only a small reverse proxy in front of Ollama. MCP and Hermes integrations are out of scope.
+This document covers the rootless reverse proxy in front of Ollama and the separate llama.cpp backends. llama.cpp runtime details, image pin, GPU mappings and benchmark are in [STRIX_HALO_LLAMACPP.md](STRIX_HALO_LLAMACPP.md). Hermes and OpenCode provider configuration is recorded in [AI_AGENT_INTEGRATION.md](AI_AGENT_INTEGRATION.md); this document describes the gateway itself.
 
 The proxy rewrites the upstream HTTP `Host` header. During diagnosis, Ollama returned `403 Forbidden` for requests forwarded with the tailnet HTTPS hostname, but returned `200 OK` when the upstream request used `Host: localhost:11434`. The persistent proxy is now the Tailscale Serve backend, and same-host HTTPS `/api/tags` was verified to return `200 OK` without a manual Host override. Android client access and reboot startup still need verification.
 
@@ -15,7 +15,7 @@ The proxy rewrites the upstream HTTP `Host` header. During diagnosis, Ollama ret
 - **Boot startup:** User lingering is enabled and the service is wired under the user `default.target`; verify it after a real reboot before claiming boot startup is confirmed.
 - **Desktop controls:** Start, Stop, and Status shortcuts for this service only. The files exist and scripts pass shell syntax checks. Status displayed the service correctly; Stop and Start were both verified by double-clicking their desktop icons, and the service state changed as expected.
 - **Proxy configuration:** A standalone editable NGINX configuration file, mounted read-only into the container.
-- **Request paths:** No application-code allowlist. NGINX configuration controls routing; the initial design is transparent forwarding for Ollama API paths, with the upstream `Host` set to `localhost:11434`. Do not introduce path restrictions unless intentionally configured and tested.
+- **Request paths:** No application-code allowlist. NGINX configuration controls routing; `/` continues to forward to Ollama at `localhost:11434`, `/llama/` forwards to llama.cpp at `localhost:18080`, and `/llama-coder/` forwards to llama.cpp at `localhost:18081`, with each prefix stripped. Do not introduce path restrictions unless intentionally configured and tested.
 - **Network exposure:** NGINX is published only on host loopback `127.0.0.1:11435`. Tailscale Serve forwards the existing tailnet-only HTTPS route to that port. Do not enable Funnel. Keep Ollama's existing loopback binding unchanged.
 - **Lifecycle separation:** Starting or stopping the proxy must not start or stop Ollama.
 - **Recovery:** Preserve the previous Serve configuration and proxy config backup before cutover or edits.
@@ -24,17 +24,17 @@ The proxy rewrites the upstream HTTP `Host` header. During diagnosis, Ollama ret
 
 Transparent forwarding is not endpoint access control. Every API path reachable through the proxy can be forwarded unless the NGINX configuration explicitly says otherwise. Access to the service is therefore governed in part by Tailscale's tailnet access policy. The policy observed during diagnosis allowed all tailnet connections; do not describe this as a device-specific allowlist. If narrower access is needed, review tailnet policy separately rather than assuming the proxy restricts callers.
 
-## Planned file and service names
+## Implemented file and service names
 
-These are proposed names to make documentation and desktop controls consistent. Confirm them during implementation before using commands.
+These are the deployed names and paths.
 
 - Host-side proxy config: `${XDG_CONFIG_HOME:-$HOME/.config}/llm-proxy/default.conf`
 - Rootless Quadlet: `${XDG_CONFIG_HOME:-$HOME/.config}/containers/systemd/llm-proxy.container`
 - Generated user service: `llm-proxy.service`
 - Container name: `llm-proxy`
-- Proposed loopback-only proxy listener: `127.0.0.1:11435`
+- Loopback-only proxy listener: `127.0.0.1:11435`
 
-### Preferred network path (CLI connectivity tested; Quadlet still pending)
+### Rootless Podman network path
 
 Use rootless Podman with its own `pasta` network namespace, **not** `--network=host`. Host networking would give the container direct access to the host's localhost TCP/UDP services and abstract Unix sockets, weakening the isolation goal.
 
@@ -50,34 +50,35 @@ The request returned HTTP 200. The same pattern was then tested against Ollama:
 podman run --rm --network=pasta:-T,11434 docker.io/library/busybox:1.37.0 wget -S -O- http://127.0.0.1:11434/api/tags
 ```
 
-That request also returned HTTP 200 and the expected model list. The temporary Python test server was stopped and port 18081 was confirmed to have no listener afterward.
+That request also returned HTTP 200 and the expected model list. The temporary Python test server was stopped and port 18081 had no listener afterward; the port was later assigned to the permanent Qwen3-Coder 30B backend.
 
-The proposed Quadlet configuration is:
+The deployed NGINX Quadlet uses:
 
 ```ini
 [Container]
-Network=pasta:-T,11434
+Network=pasta:-T,11434,-T,8188,-T,18080,-T,18081
 PublishPort=127.0.0.1:11435:8080
+PublishPort=127.0.0.1:11436:8081
 ```
 
 Interpretation:
 - The container uses its own network namespace.
-- The tested `pasta:-T,11434` setting lets container-side `127.0.0.1:11434` reach the host's Ollama listener on `127.0.0.1:11434`.
-- The intended NGINX listener on container port `8080` will be published only to host loopback at `127.0.0.1:11435`; it will not be published on LAN interfaces.
-- Tailscale Serve will target `http://127.0.0.1:11435` only after local proxy tests pass.
-- NGINX will proxy to `http://127.0.0.1:11434` and set `proxy_set_header Host localhost:11434;`.
+- The pasta forwards let NGINX reach host Ollama at `127.0.0.1:11434`, ComfyUI at `127.0.0.1:8188`, and llama.cpp at `127.0.0.1:18080` and `127.0.0.1:18081` from its own network namespace.
+- NGINX listeners are published only to host loopback: container `8080` at `127.0.0.1:11435`, and container `8081` at `127.0.0.1:11436`.
+- The existing `/` location proxies to `http://127.0.0.1:11434` and sets `Host: localhost:11434`. `/llama/` proxies to `http://127.0.0.1:18080/`, and `/llama-coder/` proxies to `http://127.0.0.1:18081/`, stripping each prefix.
+- The localhost Ollama and llama.cpp API checks passed after restarting the Quadlet service. Tailnet and Android access remain unverified in this change.
 
-The CLI networking behavior has been observed to work with the installed versions. A temporary NGINX container was verified locally, and the persistent Quadlet service was subsequently parsed, loaded by systemd, started, and tested. Through the persistent service, `/api/tags`, `/v1/models`, and a non-streaming `/api/generate` request all returned HTTP 200. Streaming chunks were verified through the temporary proxy, but the test hit its token limit during the model's thinking field. **Boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale access are not yet validated.** Validate those separately before cutover. The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut.
+The `pasta -T` mapping makes the forwarded connection appear to the host as originating from loopback; treat that as an explicit trust-boundary decision. Do not enable host networking or rebind Ollama to a LAN-facing address as a shortcut. Proxy boot behavior after a real reboot, desktop shortcuts, and Android/Tailscale access are not yet validated for this deployment.
 
 ### Configuration file permissions
 
 The NGINX unprivileged image could not read the host-mounted file when it was mode `640`, because the container process uses a different UID mapping. Changing the file to mode `644` allowed NGINX to read it. The parent directory was left at mode `750`, restricting traversal to the owner/group. Keep the config free of secrets. During implementation, verify the actual UID mapping and read access instead of broadening directory permissions or running NGINX as root.
 
-This network arrangement does not turn NGINX into a general-purpose forward proxy or alter the host's default route. Its configured upstream remains Ollama. However, don't claim that the container has no outbound network access; rootless `pasta` may permit normal outbound connections. Network egress restriction is a separate control and is not part of this minimal first implementation.
+This network arrangement does not turn NGINX into a general-purpose forward proxy or alter the host's default route. Its configured upstreams are the specific Ollama, ComfyUI and llama.cpp listeners described above. However, don't claim that the container has no outbound network access; rootless `pasta` may permit normal outbound connections. Network egress restriction is a separate control and is not part of this implementation.
 
 ## Routine desktop controls
 
-Once implementation is complete and the names above are confirmed, the desktop shortcuts should invoke these user-level operations:
+The desktop shortcuts invoke these user-level operations:
 
 ```bash
 systemctl --user start llm-proxy.service
@@ -109,7 +110,7 @@ Use this workflow after the container and config mount have been installed. The 
 6. If the local checks pass, verify the tailnet HTTPS route and Android client.
 7. Record the change and observed results; never mark a test passed without its output.
 
-Example workflow using the planned names:
+Example workflow using the deployed paths:
 
 ```bash
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/llm-proxy/default.conf"
@@ -133,14 +134,14 @@ If validation fails, do not reload. Restore the backup, validate again, and relo
 
 ## Post-update verification
 
-The proxy listener port in these examples is provisional. Confirm it against the implemented configuration.
+The deployed proxy listener is `127.0.0.1:11435`.
 
 ```bash
 curl -i http://127.0.0.1:11435/api/tags
-curl -i http://127.0.0.1:11435/v1/models
+curl -i http://127.0.0.1:11435/llama/v1/models
 ```
 
-Both requests should return `200 OK` with the expected Ollama model response. Also test a non-streaming generation request and a streaming generation request. For streaming, verify that multiple JSON chunks arrive incrementally; a test ending with `done_reason:"length"` because of a deliberately low token limit still demonstrates stream transport, but not successful completion of the prompt.
+The first request should return the Ollama model list; the second should return the llama.cpp model list. Both returned `200 OK` during local verification. Also test a non-streaming generation request and a streaming generation request before changing proxy configuration.
 
 These tests alone do not prove that the proxy rewrites the upstream header: the end-to-end test must also confirm that the normal tailnet HTTPS request succeeds without manually setting a `Host` header.
 
