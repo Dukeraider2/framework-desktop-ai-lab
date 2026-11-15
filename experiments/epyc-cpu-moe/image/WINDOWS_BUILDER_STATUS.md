@@ -25,10 +25,9 @@ VirtualizationFirmwareEnabled=false, SLAT supported, HypervisorPresent=false.
 This is a firmware prerequisite blocker, not a failed image build.
 
 Requested Windows elevation for the documented DISM command enabling only
-VirtualMachinePlatform with `/all /norestart`. Its completion remains pending
-at last observation; do not assume the feature is enabled. Owner must approve
-the Windows elevation prompt, then enable SVM virtualization in firmware and
-return to Windows. No firmware edit or reboot was performed by the agent.
+VirtualMachinePlatform with `/all /norestart`. DISM subsequently completed with
+exit code 3010: success, restart required. Owner must enable SVM virtualization
+in firmware and return to Windows. No firmware edit or reboot was performed by the agent.
 Podman VM creation and all compilation/boot testing remain pending.
 
 ASUS firmware guidance checked:
