@@ -16,6 +16,27 @@ privileges required). Requested Windows elevation with Start-Process -Verb RunAs
 At last observation that process remained pending and WSL was still unavailable.
 No Windows restart was requested or performed. Linux VM not created yet.
 
+## Subsequent observed state
+
+The elevated WSL installer completed with exit 0. `wsl --version` now reports
+WSL 3.0.5.0 and kernel 6.18.58.1-1. `wsl --status` reports WSL2 cannot start
+because virtualization is not enabled. Independent CIM checks report
+VirtualizationFirmwareEnabled=false, SLAT supported, HypervisorPresent=false.
+This is a firmware prerequisite blocker, not a failed image build.
+
+Requested Windows elevation for the documented DISM command enabling only
+VirtualMachinePlatform with `/all /norestart`. Its completion remains pending
+at last observation; do not assume the feature is enabled. Owner must approve
+the Windows elevation prompt, then enable SVM virtualization in firmware and
+return to Windows. No firmware edit or reboot was performed by the agent.
+Podman VM creation and all compilation/boot testing remain pending.
+
+ASUS firmware guidance checked:
+https://www.asus.com/us/support/faq/1045141/
+AMD path: Advanced > CPU Configuration > SVM Mode > Enabled.
+Windows feature reference:
+https://learn.microsoft.com/en-us/windows/wsl/install-manual
+
 Microsoft.WSL package SHA-256 reported by WinGet:
 `98cb1219de93ceb8ec59ee136f7019f6f2078f23d61d04540e6db546a52b93a5`.
 
