@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+microkernels/dot_u5s8
+build-experimental/
+results/*.json
+*.gguf
+*.gguf.*
+*.key
+*.pem
+.env

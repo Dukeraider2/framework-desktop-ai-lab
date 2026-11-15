@@ -1,0 +1,1 @@
+{"description":"Experimental disabling of automatic NUMA page balancing", "changes":{"/proc/sys/kernel/numa_balancing":"0"}}
