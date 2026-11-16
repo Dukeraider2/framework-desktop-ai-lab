@@ -1,0 +1,26 @@
+# EXPERIMENT ONLY. Not installed/enabled. Copy to ~/.config/containers/systemd/ only after review.
+# Build with: podman build -f containers/Containerfile --build-arg LLAMA_COMMIT=<40-char-sha> -t localhost/epyc-moe:dev .
+# Before use: place a licensed GGUF in ~/epyc-moe-models and edit the filename below.
+[Unit]
+Description=Experimental CPU-only MoE inference (rootless Podman)
+After=network-online.target
+ConditionPathExists=%h/epyc-moe-models/REPLACE_WITH_MODEL.gguf
+
+[Container]
+Image=localhost/epyc-moe:dev
+Pull=never
+PublishPort=127.0.0.1:8088:8080
+Volume=%h/epyc-moe-models:/models:ro
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+UserNS=keep-id
+# This model path intentionally cannot resolve until manually edited.
+Exec=--model /models/REPLACE_WITH_MODEL.gguf --host 0.0.0.0 --port 8080 --n-gpu-layers 0 --threads 64 --threads-batch 64 --ctx-size 8192 --numa distribute --parallel 1 --no-ui --metrics
+
+[Service]
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=900
+
+# Deliberately no [Install]: provisioning and explicit operator start are required.

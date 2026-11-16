@@ -1,0 +1,1 @@
+{"description":"Experimental THP madvise and deferred defrag", "changes":{"/sys/kernel/mm/transparent_hugepage/enabled":"madvise","/sys/kernel/mm/transparent_hugepage/defrag":"defer+madvise"}}

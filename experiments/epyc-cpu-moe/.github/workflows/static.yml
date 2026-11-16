@@ -1,0 +1,14 @@
+name: Framework static checks
+on: [push, pull_request]
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test portable Python components
+        run: python3 -m unittest discover -s tests -v
+      - name: Syntax check shell scripts
+        run: bash -n kernel/prepare-kernel.sh tools/inspect-assembly.sh
+      - name: Compile synthetic AVX2 test
+        run: make -C microkernels
+      # Do not treat GitHub CI as actual Zen 1 numerical or performance validation.
