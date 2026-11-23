@@ -1,0 +1,55 @@
+[Unit]
+Description=Fixed-destination HTTPS tunnel for the Hermes GitHub provider
+Documentation=file:/opt/hermes-project-awareness/docs/deployment.md
+ConditionPathExists=/etc/hermes-project-awareness/github-egress-policy-approved
+
+[Service]
+Type=simple
+User=hermes-github-egress
+Group=hermes-egress-clients
+WorkingDirectory=/opt/hermes-project-awareness
+Environment=HERMES_GITHUB_PROXY_SOCKET=/run/hermes-github-egress/connect.sock
+EnvironmentFile=/etc/hermes-project-awareness/runtime.env
+ExecStart=/usr/bin/python3.14 -m integrations.hermes_project_awareness.github_egress_proxy
+Restart=on-failure
+RestartSec=3s
+UMask=0077
+RuntimeDirectory=hermes-github-egress
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=restart
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=tmpfs
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=strict
+ProtectProc=invisible
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# Deliberately deny all IP traffic until a host-local systemd/nftables policy
+# explicitly allows the configured DNS resolver and current api.github.com CIDRs.
+IPAddressDeny=any
+NoExecPaths=/
+ExecPaths=/usr/bin/python3.14
+ReadOnlyPaths=/opt/hermes-project-awareness /etc/resolv.conf /etc/hosts /etc/nsswitch.conf
+ReadWritePaths=/run/hermes-github-egress
+AppArmorProfile=hermes-github-egress
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hermes-github-egress
+
+[Install]
+WantedBy=multi-user.target

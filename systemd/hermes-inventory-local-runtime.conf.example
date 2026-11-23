@@ -1,0 +1,13 @@
+# Optional reviewed drop-in for the fixed Ollama and ComfyUI loopback readers.
+# Install only after confirming the service ports and that both APIs are local.
+# This removes the private network namespace but the cgroup egress policy below
+# denies all routed IP destinations and permits loopback only. The Python adapter
+# itself has hard-coded GET methods, ports, and paths (11434 /api/tags and
+# 8188 /system_stats or /models/{checkpoints,loras,vae,controlnet,upscale_models}).
+# Podman and Tailscale sockets are not enabled by this drop-in.
+[Service]
+PrivateNetwork=no
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=any
+IPAddressAllow=127.0.0.0/8
+IPAddressAllow=::1/128

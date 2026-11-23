@@ -1,0 +1,54 @@
+[Unit]
+Description=Hermes project-awareness durable audit receiver
+Documentation=file:/opt/hermes-project-awareness/docs/deployment.md
+ConditionPathExists=/etc/hermes-project-awareness/runtime.env
+
+[Service]
+Type=simple
+User=hermes-audit
+Group=hermes-audit-clients
+WorkingDirectory=/opt/hermes-project-awareness
+EnvironmentFile=/etc/hermes-project-awareness/runtime.env
+ExecStart=/usr/bin/python3.14 -m integrations.hermes_project_awareness.audit_service
+Restart=on-failure
+RestartSec=3s
+UMask=0077
+RuntimeDirectory=hermes-audit
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=restart
+LogsDirectory=hermes-project-awareness
+LogsDirectoryMode=0700
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=tmpfs
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=strict
+ProtectProc=invisible
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX
+NoExecPaths=/
+ExecPaths=/usr/bin/python3.14
+ReadOnlyPaths=/opt/hermes-project-awareness /etc/hermes-project-awareness/runtime.env
+ReadWritePaths=/run/hermes-audit /var/log/hermes-project-awareness
+AppArmorProfile=hermes-project-awareness-audit
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hermes-project-awareness-audit
+
+[Install]
+WantedBy=multi-user.target
