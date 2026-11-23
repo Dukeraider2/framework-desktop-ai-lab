@@ -1,5 +1,6 @@
 """Inventory, registry and conservative placement policy; Python standard library only."""
 import hashlib
+from http.client import HTTPException
 import json
 import os
 from pathlib import Path
@@ -248,6 +249,6 @@ def service_observations():
                 elif name in {'llama_models', 'coder_models'}:
                     item['model_ids'] = [m['id'] for m in data['data']]
                 observed[name] = item
-        except (OSError, ValueError, KeyError, TypeError):
+        except (OSError, HTTPException, ValueError, KeyError, TypeError):
             observed[name] = {'available': False, 'http_status': None}
     return {'observed_at': time.time(), 'services': observed, 'active_sessions': None}
