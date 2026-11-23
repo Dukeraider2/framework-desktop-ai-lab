@@ -1,0 +1,28 @@
+# Experimental CPU-only llama.cpp build. Supply EXACT pinned SHA at build time.
+# Review upstream and OS supply-chain changes before using this in production.
+FROM ubuntu:26.04 AS build
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git cmake ninja-build build-essential \
+    && rm -rf /var/lib/apt/lists/*
+ARG LLAMA_COMMIT
+RUN test -n "$LLAMA_COMMIT" && test "${#LLAMA_COMMIT}" -eq 40 \
+    && git clone https://github.com/ggml-org/llama.cpp /src/llama.cpp \
+    && cd /src/llama.cpp && git checkout --detach "$LLAMA_COMMIT" \
+    && test "$(git rev-parse HEAD)" = "$LLAMA_COMMIT"
+RUN cmake -S /src/llama.cpp -B /src/llama.cpp/build -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS='-O3 -march=znver1 -mtune=znver1' \
+    -DCMAKE_CXX_FLAGS='-O3 -march=znver1 -mtune=znver1' \
+    -DGGML_CPU=ON -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON \
+    -DGGML_FMA=ON -DGGML_F16C=ON -DGGML_BMI2=ON -DGGML_SSE42=ON \
+    -DGGML_AVX_VNNI=OFF -DGGML_AVX512=OFF -DGGML_CUDA=OFF -DGGML_HIP=OFF \
+    -DBUILD_SHARED_LIBS=OFF -DGGML_CPU_REPACK=ON \
+    && cmake --build /src/llama.cpp/build --target llama-server -j 8
+FROM ubuntu:26.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates libgomp1 libstdc++6 libatomic1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 10001 inference && useradd -m -u 10001 -g 10001 inference
+COPY --from=build /src/llama.cpp/build/bin/llama-server /usr/local/bin/llama-server
+USER 10001:10001
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/llama-server"]
